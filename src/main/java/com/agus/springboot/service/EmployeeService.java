@@ -42,17 +42,8 @@ public class EmployeeService {
         // 3. Guardar
         EmployeeEntity saved = employeeDAO.save(emplEntity);
 
-        // 4. Mapear el resultado de 'saved' a un NUEVO EmployeesDTO
-        EmployeesDTO newDTO = new EmployeesDTO();
-        newDTO.setEmpno(saved.getEmpno());
-        newDTO.setName(saved.getEname());
-        newDTO.setJob(saved.getJob());
-        newDTO.setDeptNo(saved.getDept().getDeptno());
-        newDTO.setDeptName(saved.getDept().getDname());
-        newDTO.setDeptLocation(saved.getDept().getLoc());
-
         // 5. Devolver ese DTO
-        return newDTO;
+        return convertEntityToDTO(saved);
     }
 
     public EmployeesDTO findEmployeeByIdDTO(int id){
@@ -106,7 +97,7 @@ public class EmployeeService {
     }
 
     public boolean deleteUser(int id){
-        boolean deleted = falsepws; // not found
+        boolean deleted = false; // not found
 
         boolean exists = employeeDAO.existsById(id);
 
@@ -117,11 +108,24 @@ public class EmployeeService {
         return deleted;
     }
 
-    public boolean updateEmployee(int id, EmployeesDTO updatedEmpl){
-        Optional<EmployeeEntity> oldEmpl = employeeDAO.findById(id);
-        if(oldEmpl.isPresent()){
-//            employeeDAO.
-            oldEmpl.get().setEmpno(updatedEmpl.getEmpno());
+    public EmployeesDTO updateEmployee(int id, EmployeesDTO dtoUpdated){
+        Optional<EmployeeEntity> employeeEntityOptional = employeeDAO.findById(id);
+        if(employeeEntityOptional.isPresent()){
+            EmployeeEntity employee = employeeEntityOptional.get();
+//            1- get EmployeeEntity 2- Save it 3- return DTO (?)
+            employee.setEname(dtoUpdated.getName());
+            employee.setJob(dtoUpdated.getJob());
+
+            if(dtoUpdated.getDeptno() != null){
+                Optional<DeptEntity> dept = deptDAO.findById(dtoUpdated.getDeptno());
+                dept.ifPresent(employee::setDept);
+//                dept.ifPresent(deptEntity -> employee.setDept(deptEntity));
+            }
+            EmployeeEntity savedEmployee = employeeDAO.save(employee);
+
+            return convertEntityToDTO(savedEmployee);
         }
+
+        return null;
     }
 }

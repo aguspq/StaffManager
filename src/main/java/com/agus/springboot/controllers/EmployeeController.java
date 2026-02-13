@@ -73,14 +73,15 @@ public class EmployeeController {
     }
     // ------------------------------
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateEmployee(@RequestBody EmployeesDTO newEmpl, // check if I can swap EmplEntity for EmplDTO
+    public ResponseEntity<?> updateEmployee(@RequestBody EmployeesDTO newEmpl,
                                             @PathVariable(value = "id") int id){
-        if(employeeDAO.existsById(id)){
-//            employeeDAO.save(newEmpl);
-            return ResponseEntity.ok().body("Employee updated");
-        } else
-            return ResponseEntity.notFound().build();
+        EmployeesDTO emplDTO = emplService.updateEmployee(id, newEmpl);
+        if(emplDTO != null)
+            return ResponseEntity.ok().body(emplDTO);
+
+        return ResponseEntity.notFound().build();
     }
+
 
     // ------------------------------
     @DeleteMapping("/{id}")
