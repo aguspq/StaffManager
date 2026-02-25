@@ -4,6 +4,8 @@ import com.agus.springboot.model.dao.IDeptDAO;
 import com.agus.springboot.model.entities.DeptEntity;
 import com.agus.springboot.service.DepartmentDTO;
 import com.agus.springboot.service.DepartmentService;
+import com.agus.springboot.service.EmployeesDTO;
+import org.apache.coyote.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,32 +27,32 @@ public class DepartmentController {
     @GetMapping("/{id}")
     public ResponseEntity<DepartmentDTO> findDeptById(@PathVariable(value = "id") int id){
         DepartmentDTO dept = deptService.findDeptById(id);
-        if(dept != null)
-            return ResponseEntity.ok().body(dept);
 
-        return ResponseEntity.notFound().build();
-
+        return ResponseEntity.ok().body(dept);
     }
 
     @PostMapping // CREATE
     public ResponseEntity<?> saveDept (@Validated @RequestBody DepartmentDTO dept){
         DepartmentDTO newDept = deptService.saveDept(dept);
 
-        if(newDept == null) // deptNo (id) != null
-            return ResponseEntity.badRequest().body("Dept already exists");
-
         return ResponseEntity.ok().body(newDept);
     }
 
 //    public void deleteDept (@Validated @RequestBody DeptEntity dept){ deptDAO.delete(dept);}
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateDepartment(@RequestBody DepartmentDTO newDept,
+                                              @PathVariable(value = "id") int id){
+        DepartmentDTO dept = deptService.updateDepartment(id, newDept);
+
+        return ResponseEntity.ok().body(dept);
+    }
+
     @DeleteMapping ("/{id}")
     public ResponseEntity<?> deleteDept(@PathVariable(value = "id") int id){
-        boolean deleted = deptService.deleteDept(id);
-        if(deleted)
-            return ResponseEntity.ok().body("Deleted");
+        deptService.deleteDept(id);
 
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.noContent().build();
 
     }
 }

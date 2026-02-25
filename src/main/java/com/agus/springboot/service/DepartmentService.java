@@ -1,5 +1,6 @@
 package com.agus.springboot.service;
 
+import com.agus.springboot.exceptions.ResourceNotFoundException;
 import com.agus.springboot.model.dao.IDeptDAO;
 import com.agus.springboot.model.entities.DeptEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +38,18 @@ public class DepartmentService {
         Optional<DeptEntity> dept = deptDAO.findById(id);
 //        return dept.map(d -> convertEntityToDTO(d)).orElse(null);
 //        same but shorter
-        return dept.map(this::convertEntityToDTO).orElse(null);
+        return dept.map(this::convertEntityToDTO).orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + id));
     }
 
     public DepartmentDTO saveDept(DepartmentDTO dept){
         // DTO --> Entity --> Return dto
         if(dept.getDeptNo() != null)
-            return null;
+            throw new ResourceNotFoundException("You can't pass an ID to create");
+
+        if(dept.getName() == null || dept.getName().isEmpty() || dept.getLocation() == null || dept.getLocation().isEmpty())
+            throw new ResourceNotFoundException("Complete all fields to create the department\n" +
+                    "Name: " + dept.getName() +
+                    "\nLocation: " + dept.getLocation());
 
         DeptEntity deptEntity = new DeptEntity();
         deptEntity.setDname(dept.getName());
@@ -54,16 +60,28 @@ public class DepartmentService {
         return convertEntityToDTO(saved);
     }
 
-    public boolean deleteDept(int id){
-        boolean deleted = false;
+    public void deleteDept(int id){
         Optional<DeptEntity> dept = deptDAO.findById(id);
 
         if(dept.isPresent()){
             deptDAO.deleteById(id);
-            deleted = true;
-        }
+        } else
+            throw new ResourceNotFoundException("Department not found with ID: " + id);
+    }
 
-        return deleted;
+    public DepartmentDTO updateDepartment(int id, DepartmentDTO newDept){
+        DeptEntity dept = deptDAO.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Dept with ID: " + id + " not found"));
+
+        if(newDept.getName() != null)
+            dept.setDname(newDept.getName());
+
+        if(newDept.getLocation() != null)
+            dept.setLoc(newDept.getLocation());
+
+        DeptEntity deptUpdated = deptDAO.save(dept);
+
+        return convertEntityToDTO(deptUpdated);
     }
 
 }

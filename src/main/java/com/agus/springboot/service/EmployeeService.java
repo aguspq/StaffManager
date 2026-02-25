@@ -1,5 +1,6 @@
 package com.agus.springboot.service;
 
+import com.agus.springboot.exceptions.ResourceNotFoundException;
 import com.agus.springboot.model.dao.IDeptDAO;
 import com.agus.springboot.model.dao.IEmployeeDAO;
 import com.agus.springboot.model.entities.DeptEntity;
@@ -22,14 +23,19 @@ public class EmployeeService {
     private IDeptDAO deptDAO;
 
     public EmployeesDTO saveEmployee(EmployeesDTO dto) {
-        // Mueve aquí la lógica de:
         // 1. Buscar departamento
         if(dto.getEmpno() != null)
-            throw new RuntimeException("You can't pass an ID to create");
+//            throw new RuntimeException("You can't pass an ID to create");
+            throw new ResourceNotFoundException("You can't pass an ID to create");
+
+//         Fast Fail, to force Spring to throw MY exception
+        if(dto.getDeptno() == null)
+            throw new ResourceNotFoundException("Department ID is mandatory to create an employee");
 
         Optional<DeptEntity> dept = deptDAO.findById(dto.getDeptno());
         if (dept.isEmpty()) {
-            throw new RuntimeException("Department does not exist");
+//            throw new RuntimeException("Department does not exist");
+            throw new ResourceNotFoundException("Department with ID: " + dto.getDeptno() + " not found");
         }
         // 2. Mapear la Entity
         EmployeeEntity emplEntity = new EmployeeEntity();
@@ -48,7 +54,7 @@ public class EmployeeService {
     public EmployeesDTO findEmployeeByIdDTO(int id){
         return employeeDAO.findById(id)
                 .map(this::convertEntityToDTO)
-                .orElse(null);
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with ID: " + id));
 
     }
 
@@ -92,28 +98,27 @@ public class EmployeeService {
         if(exists){
             employeeDAO.deleteById(id);
             deleted = true; // found
-        }
+        } else
+            throw new ResourceNotFoundException("Employee not found with ID: " + id);
         return deleted;
     }
 
     public EmployeesDTO updateEmployee(int id, EmployeesDTO dtoUpdated){
-        Optional<EmployeeEntity> employeeEntityOptional = employeeDAO.findById(id);
-        if(employeeEntityOptional.isPresent()){
-            EmployeeEntity employee = employeeEntityOptional.get();
-//            1- get EmployeeEntity 2- Save it 3- return DTO (?)
-            employee.setEname(dtoUpdated.getName());
-            employee.setJob(dtoUpdated.getJob());
+//        Optional<EmployeeEntity> employeeEntityOptional = employeeDAO.findById(id);
+//        1- get EmployeeEntity 2- Save it 3- return DTO (?)
+        EmployeeEntity employee = employeeDAO.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee with ID: " + id + " not found"));
 
-            if(dtoUpdated.getDeptno() != null){
-                Optional<DeptEntity> dept = deptDAO.findById(dtoUpdated.getDeptno());
-                dept.ifPresent(employee::setDept);
-//                dept.ifPresent(deptEntity -> employee.setDept(deptEntity));
-            }
-            EmployeeEntity savedEmployee = employeeDAO.save(employee);
+        employee.setEname(dtoUpdated.getName());
+        employee.setJob(dtoUpdated.getJob());
 
-            return convertEntityToDTO(savedEmployee);
+        if(dtoUpdated.getDeptno() != null){
+            DeptEntity dept = deptDAO.findById(dtoUpdated.getDeptno())
+                    .orElseThrow(() -> new ResourceNotFoundException("Dept with ID: " + dtoUpdated.getDeptno() + " not found"));
+
+            employee.setDept(dept);
         }
 
-        return null;
+        return convertEntityToDTO(employeeDAO.save(employee));
     }
 }
