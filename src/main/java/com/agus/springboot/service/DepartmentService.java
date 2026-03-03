@@ -1,12 +1,15 @@
 package com.agus.springboot.service;
 
+import ch.qos.logback.core.rolling.helper.ArchiveRemover;
 import com.agus.springboot.exceptions.ResourceNotFoundException;
 import com.agus.springboot.model.dao.IDeptDAO;
 import com.agus.springboot.model.entities.DeptEntity;
+import com.agus.springboot.model.entities.EmployeeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,11 +30,40 @@ public class DepartmentService {
     }
 
     private DepartmentDTO convertEntityToDTO (DeptEntity dept){
-        return new DepartmentDTO(
-                dept.getDeptno(),
-                dept.getDname(),
-                dept.getLoc()
-        );
+        DepartmentDTO dto = new DepartmentDTO();
+        dto.setDeptNo(dept.getDeptno());
+        dto.setName(dept.getDname());
+        dto.setLocation(dept.getLoc());
+
+        if(dept.getEmployees() != null){
+//            Entity List
+            List<EmployeeEntity> employees = new ArrayList<>(dept.getEmployees());
+//            DTO List
+            List<EmployeesDTO> employeesDTOList = new ArrayList<>();
+
+            for (EmployeeEntity empl : employees){
+                employeesDTOList.add(convertEmplEntityToDTO(empl));
+            }
+
+            dto.setEmployeesDTOList(employeesDTOList);
+        }
+
+        return dto;
+    }
+
+    private EmployeesDTO convertEmplEntityToDTO(EmployeeEntity employeeEntity){
+        EmployeesDTO dto = new EmployeesDTO();
+        dto.setEmpno(employeeEntity.getEmpno());
+        dto.setName(employeeEntity.getEname());
+        dto.setJob(employeeEntity.getJob());
+
+        if(employeeEntity.getDept() != null){
+            dto.setDeptNo(employeeEntity.getDept().getDeptno());
+            dto.setDeptName(employeeEntity.getDept().getDname());
+            dto.setDeptLocation(employeeEntity.getDept().getLoc());
+        }
+
+        return dto;
     }
 
     public DepartmentDTO findDeptById(int id){

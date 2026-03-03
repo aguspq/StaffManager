@@ -1,5 +1,6 @@
 package com.agus.springboot.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -20,12 +21,10 @@ public class EmployeeEntity {
     @Basic
     @Column(name = "job")
     private String job;
-//    @Basic
-//    @Column(name = "deptno")
-//    private Integer deptno;
 
     @ManyToOne
     @JoinColumn(name = "deptno", referencedColumnName = "deptno")
+    @JsonBackReference
     private DeptEntity dept;
 
 
@@ -64,13 +63,12 @@ public class EmployeeEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        EmployeeEntity that = (EmployeeEntity) o;
-        return empno == that.empno && Objects.equals(ename, that.ename) && Objects.equals(job, that.job) && Objects.equals(dept, that.dept);
+        if (!(o instanceof EmployeeEntity that)) return false;
+        return Objects.equals(getEmpno(), that.getEmpno()) && Objects.equals(getEname(), that.getEname()) && Objects.equals(getJob(), that.getJob());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(empno, ename, job, dept);
+        return Objects.hash(getEmpno(), getEname(), getJob());
     }
 }

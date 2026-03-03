@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 public class DepartmentDTO {
     private Integer deptNo;
 //    check @Valid (in controller) to use annotations
@@ -13,14 +15,16 @@ public class DepartmentDTO {
     private String name;
     @NotBlank(message = "The field 'location' is mandatory")
     private String location;
+    private List<EmployeesDTO> employeesDTOList;
 
     public DepartmentDTO(){
 
     }
-    public DepartmentDTO(Integer deptNo, String name, String location){
+    public DepartmentDTO(Integer deptNo, String name, String location, List<EmployeesDTO> employeesDTOList){
         this.deptNo = deptNo;
         this.name = name;
         this.location = location;
+        this.employeesDTOList = employeesDTOList;
     }
 
     public Integer getDeptNo() {
@@ -42,4 +46,6 @@ public class DepartmentDTO {
     public void setLocation(String location) {
         this.location = location;
     }
+    public List<EmployeesDTO> getEmployeesDTOList() { return employeesDTOList; }
+    public void setEmployeesDTOList (List<EmployeesDTO> employeesDTOList) { this.employeesDTOList = employeesDTOList; }
 }

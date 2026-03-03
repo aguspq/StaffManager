@@ -1,5 +1,6 @@
 package com.agus.springboot.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -20,6 +21,7 @@ public class DeptEntity {
     private String loc;
 
     @OneToMany(mappedBy = "dept")
+    @JsonManagedReference
     private Set<EmployeeEntity> employees;
 
 
@@ -46,17 +48,19 @@ public class DeptEntity {
     public void setLoc(String loc) {
         this.loc = loc;
     }
+    public Set<EmployeeEntity> getEmployees() { return employees; }
+
+    public void setEmployees (Set<EmployeeEntity> employees) { this.employees = employees; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DeptEntity that = (DeptEntity) o;
-        return deptno == that.deptno && Objects.equals(dname, that.dname) && Objects.equals(loc, that.loc);
+        if (!(o instanceof DeptEntity that)) return false;
+        return Objects.equals(getDeptno(), that.getDeptno()) && Objects.equals(getDname(), that.getDname()) && Objects.equals(getLoc(), that.getLoc());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(deptno, dname, loc);
+        return Objects.hash(getDeptno(), getDname(), getLoc());
     }
 }
