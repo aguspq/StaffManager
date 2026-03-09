@@ -22,7 +22,7 @@ public class DepartmentService {
     public List<DepartmentDTO> findAllDepartments(){
         List<DeptEntity> deptEntityList = (List<DeptEntity>)deptDAO.findAll();
         return deptEntityList.stream()
-                .filter(dept -> dept.getIsActive())
+                .filter(DeptEntity::getIsActive)
                 .map(this::convertEntityToDTO)
                 .toList();
 
@@ -88,7 +88,14 @@ public class DepartmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Dept with ID: " + id + " not found"));
 
         dept.setIsActive(false);
+
+//        List of employees
+        for (EmployeeEntity empl : dept.getEmployees()){
+            empl.setDept(null);
+        }
+
         deptDAO.save(dept);
+
     }
 
     public DepartmentDTO updateDepartment(int id, DepartmentDTO newDept){

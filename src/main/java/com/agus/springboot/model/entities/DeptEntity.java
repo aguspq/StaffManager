@@ -21,7 +21,7 @@ public class DeptEntity {
     @Column(name = "isactive")
     private Boolean isActive = true;
 
-    @OneToMany(mappedBy = "dept")
+    @OneToMany(mappedBy = "dept", cascade = CascadeType.ALL)
     @JsonManagedReference
     private Set<EmployeeEntity> employees;
 
