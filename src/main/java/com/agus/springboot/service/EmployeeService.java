@@ -6,10 +6,10 @@ import com.agus.springboot.model.dao.IEmployeeDAO;
 import com.agus.springboot.model.entities.DeptEntity;
 import com.agus.springboot.model.entities.EmployeeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -57,12 +57,12 @@ public class EmployeeService {
     }
 
 
-    public List<EmployeesDTO> findAllEmployees() {
+    public Page<EmployeesDTO> findAllEmployees(Pageable pageable) {
 //        // convert List<EmployeeEntity> ==> List<EmployeesDTO>
-        return ((List<EmployeeEntity>) employeeDAO.findAll()).stream()
-                .filter(EmployeeEntity::getActive)
-                .map(this::convertEntityToDTO)
-                .toList();
+//        NO stream() with Pageable
+        return employeeDAO.findByIsActiveTrue(pageable)
+                .map(this::convertEntityToDTO);
+
     }
 
 //    INSTEAD OF AND LIST WE CONVERT AN OBJECT
@@ -110,13 +110,11 @@ public class EmployeeService {
         return convertEntityToDTO(employeeDAO.save(employee));
     }
 
-    public List<EmployeesDTO> findUnassignedEmployeesDTO(){
-        List<EmployeeEntity> nullEmplList = employeeDAO.findUnassignedEmployees();
+    public Page<EmployeesDTO> findUnassignedEmployeesDTO(Pageable pageable){
+        Page<EmployeeEntity> nullEmplList = employeeDAO.findByDeptIsNullAndIsActiveTrue(pageable); // <-- filter
 
-        return nullEmplList.stream()
-                .filter(EmployeeEntity::getActive)
-                .map(this::convertEntityToDTO)
-                .toList();
+        return nullEmplList
+                .map(this::convertEntityToDTO);
 
     }
 

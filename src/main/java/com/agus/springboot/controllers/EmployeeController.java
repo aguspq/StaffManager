@@ -1,21 +1,15 @@
 package com.agus.springboot.controllers;
 
-import com.agus.springboot.model.dao.IDeptDAO;
 import com.agus.springboot.model.dao.IEmployeeDAO;
-import com.agus.springboot.model.entities.DeptEntity;
-import com.agus.springboot.model.entities.EmployeeEntity;
 import com.agus.springboot.service.EmployeeService;
 import com.agus.springboot.service.EmployeesDTO;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.swing.text.html.Option;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @RestController
 @RequestMapping("api-rest/employees")
@@ -26,8 +20,8 @@ public class EmployeeController {
     private EmployeeService emplService;
 
     @GetMapping
-    public ResponseEntity<List<EmployeesDTO>> findAllEmployees(){
-        List<EmployeesDTO> employeesDTOList = emplService.findAllEmployees();
+    public ResponseEntity<Page<EmployeesDTO>> findAllEmployees(@PageableDefault(size = 5) Pageable pageable){ // @DeftaultSize... 5
+        Page<EmployeesDTO> employeesDTOList = emplService.findAllEmployees(pageable);
         return ResponseEntity.ok(employeesDTOList);
     }
 
@@ -55,8 +49,8 @@ public class EmployeeController {
 
     // ------------------------------
     @GetMapping("/unassigned")
-    public ResponseEntity<List<EmployeesDTO>> getUnassigned(){
-        return ResponseEntity.ok(emplService.findUnassignedEmployeesDTO());
+    public ResponseEntity<Page<EmployeesDTO>> getUnassigned(@PageableDefault(size = 5) Pageable pageable){
+        return ResponseEntity.ok(emplService.findUnassignedEmployeesDTO(pageable));
     }
 
     @PatchMapping("/{id}")
