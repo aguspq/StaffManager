@@ -11,7 +11,7 @@ public class EmployeesDTO {
     private String job;
     @NotNull
     @Min(1)
-    private Integer deptno;
+    private Integer deptNo;
     private String deptName;
     private String deptLocation;
 
@@ -19,11 +19,11 @@ public class EmployeesDTO {
 
     }
 
-    public EmployeesDTO(Integer empno, String name, String job,Integer deptno, String deptName, String deptLocation ){
+    public EmployeesDTO(Integer empno, String name, String job,Integer deptNo, String deptName, String deptLocation ){
         this.empno = empno;
         this.name = name;
         this.job = job;
-        this.deptno = deptno;
+        this.deptNo = deptNo;
         this.deptName = deptName;
         this.deptLocation = deptLocation;
     }
@@ -31,7 +31,7 @@ public class EmployeesDTO {
     public Integer getEmpno(){
         return empno;
     }
-    public void setEmpno(int empno){
+    public void setEmpno(Integer empno){
         this.empno = empno;
     }
     public String getName(){
@@ -44,9 +44,9 @@ public class EmployeesDTO {
     public void setJob(String job){
         this.job = job;
     }
-    public Integer getDeptNo() {return deptno;}
-    public void setDeptNo(int deptno){
-        this.deptno = deptno;
+    public Integer getDeptNo() {return deptNo;}
+    public void setDeptNo(Integer deptNo){
+        this.deptNo = deptNo;
     }
     public String getDeptName(){ return deptName;}
     public void setDeptName(String deptName){
