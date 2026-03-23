@@ -4,6 +4,8 @@ import com.agus.springboot.model.dao.IProjectDAO;
 import com.agus.springboot.model.entities.ProjectEntity;
 import com.agus.springboot.service.ProjectDTO;
 import com.agus.springboot.service.ProjectService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api-rest/projects")
+@Tag(name = "Project Management", description = "Operations for creating, editing, and deleting projects")
 public class ProjectController {
     @Autowired
     private ProjectService projectService;
@@ -25,6 +28,7 @@ public class ProjectController {
     }
 
     @PostMapping // CREATE
+    @Operation(summary = "Create new project", description = "Saves a project to the database and assigns it a unique ID.")
     public ResponseEntity<ProjectDTO> saveProject(@Valid @RequestBody ProjectDTO project){
 //        return ResponseEntity.ok(projectService.saveProject(project));
         return new ResponseEntity<>(projectService.saveProject(project), HttpStatus.CREATED);
