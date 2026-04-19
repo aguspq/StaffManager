@@ -1,6 +1,7 @@
 package com.agus.springboot.service;
 
-import ch.qos.logback.core.rolling.helper.ArchiveRemover;
+import com.agus.springboot.dto.DepartmentDTO;
+import com.agus.springboot.dto.EmployeesDTO;
 import com.agus.springboot.exceptions.ResourceNotFoundException;
 import com.agus.springboot.model.dao.IDeptDAO;
 import com.agus.springboot.model.entities.DeptEntity;
@@ -9,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class DepartmentService {

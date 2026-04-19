@@ -1,6 +1,5 @@
-package com.agus.springboot.service;
+package com.agus.springboot.dto;
 
-import com.agus.springboot.model.entities.ProjectEntity;
 import jakarta.validation.constraints.*;
 
 import java.util.Set;

@@ -1,14 +1,10 @@
 package com.agus.springboot.controllers;
 
-import com.agus.springboot.model.dao.IDeptDAO;
-import com.agus.springboot.model.entities.DeptEntity;
-import com.agus.springboot.service.DepartmentDTO;
+import com.agus.springboot.dto.DepartmentDTO;
 import com.agus.springboot.service.DepartmentService;
-import com.agus.springboot.service.EmployeesDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.apache.coyote.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

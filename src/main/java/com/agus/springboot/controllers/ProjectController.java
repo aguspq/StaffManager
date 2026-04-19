@@ -1,6 +1,6 @@
 package com.agus.springboot.controllers;
 
-import com.agus.springboot.service.ProjectDTO;
+import com.agus.springboot.dto.ProjectDTO;
 import com.agus.springboot.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,5 +1,7 @@
 package com.agus.springboot.service;
 
+import com.agus.springboot.dto.EmployeesDTO;
+import com.agus.springboot.dto.ProjectDTO;
 import com.agus.springboot.exceptions.ResourceNotFoundException;
 import com.agus.springboot.model.dao.IDeptDAO;
 import com.agus.springboot.model.dao.IEmployeeDAO;
@@ -28,7 +30,7 @@ public class EmployeeService {
     private IDeptDAO deptDAO;
 
     public EmployeesDTO saveEmployee(EmployeesDTO dto) {
-        // 1. Buscar departamento
+        // 1. Search department
         if(dto.getEmpno() != null)
 //            throw new RuntimeException("You can't pass an ID to create");
             throw new ResourceNotFoundException("You can't pass an ID to create");
@@ -42,17 +44,16 @@ public class EmployeeService {
 //            throw new RuntimeException("Department does not exist");
             throw new ResourceNotFoundException("Department with ID: " + dto.getDeptNo() + " not found");
         }
-        // 2. Mapear la Entity
+        // 2. Map Entity
         EmployeeEntity emplEntity = new EmployeeEntity();
         emplEntity.setEname(dto.getName());
         emplEntity.setJob(dto.getJob());
-        // DEPT we use get() because is OPTIONAL
         emplEntity.setDept(dept.get());
 
-        // 3. Guardar
+        // 3. Save
         EmployeeEntity saved = employeeDAO.save(emplEntity);
 
-        // 5. Devolver ese DTO
+        // 5. Return DTO
         return convertEntityToDTO(saved);
     }
 
@@ -60,7 +61,6 @@ public class EmployeeService {
         return employeeDAO.findById(id)
                 .map(this::convertEntityToDTO)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with ID: " + id));
-
     }
 
 

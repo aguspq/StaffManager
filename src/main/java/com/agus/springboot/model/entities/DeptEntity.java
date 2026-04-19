@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 //import jdk.incubator.foreign.SymbolLookup;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -20,10 +21,22 @@ public class DeptEntity {
     private String loc;
     @Column(name = "isactive")
     private Boolean isActive = true;
-
     @OneToMany(mappedBy = "dept", cascade = CascadeType.ALL)
     @JsonManagedReference
-    private Set<EmployeeEntity> employees;
+    private Set<EmployeeEntity> employees = new HashSet<>(); // Inicialize ALLWAYS!!!
+
+    public DeptEntity(){
+
+    }
+
+    public DeptEntity(int deptno, String dname, String loc, boolean isActive){
+        this.deptno = deptno;
+        this.dname = dname;
+        this.loc = loc;
+        this.isActive = isActive;
+        this.employees = new HashSet<>();
+    }
+
 
 
     public Integer getDeptno() {

@@ -1,7 +1,7 @@
 package com.agus.springboot.controllers;
 
 import com.agus.springboot.service.EmployeeService;
-import com.agus.springboot.service.EmployeesDTO;
+import com.agus.springboot.dto.EmployeesDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

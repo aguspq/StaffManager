@@ -1,5 +1,6 @@
 package com.agus.springboot.model.entities;
 
+import com.agus.springboot.dto.EmployeesDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -36,6 +37,17 @@ public class EmployeeEntity {
     @JoinTable(name = "employee_project", joinColumns = @JoinColumn(name = "employee_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
     @JsonIgnoreProperties("projects")
     private Set<ProjectEntity> projects = new HashSet<>();
+
+    public EmployeeEntity(){
+
+    }
+
+    public EmployeeEntity(String ename, String job, DeptEntity dept) {
+        this.ename = ename;
+        this.job = job;
+        this.dept = dept;
+    }
+
     public Integer getEmpno() {
         return empno;
     }

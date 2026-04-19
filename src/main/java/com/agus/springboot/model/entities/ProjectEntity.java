@@ -1,6 +1,5 @@
 package com.agus.springboot.model.entities;
 
-import com.agus.springboot.service.EmployeesDTO;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
