@@ -19,7 +19,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-//Un Mock es un objeto "de mentira" o un simulador
+// A Mock is a "fake" object or a simulator
 
 // How to TEST (the 3 AAA's):
 // 1- Arrange
@@ -80,7 +80,7 @@ class EmployeeServiceTest {
     }
 
     @Test
-    @DisplayName(("Saves employee"))
+    @DisplayName("Saves employee")
     void saveEmployee_ShouldReturnSavedDto_WhenDataIsCorrect(){
         // 1. SET / ARRANGE
         // Create INPUT DTO (what user sends)
@@ -89,7 +89,7 @@ class EmployeeServiceTest {
         inputDto.setJob("DEV");
         inputDto.setDeptNo(20);
 
-        // Creamos las ENTIDADES para los Mocks "simuladas"
+        // Create "simulated" entities for the Mocks
         DeptEntity deptEntity = new DeptEntity(20, "RESEARCH", "DALLAS", true);
         EmployeeEntity savedEntity = new EmployeeEntity("Agus", "DEV", deptEntity);
         savedEntity.setEmpno(100);
@@ -99,7 +99,7 @@ class EmployeeServiceTest {
         Mockito.when(employeeDAO.save(any(EmployeeEntity.class))).thenReturn(savedEntity);
 
         // 2. ACT
-        // Llamamos con el DTO, como lo haría el Controller
+        // Call using the DTO, imitating the Controller's behavior
         EmployeesDTO result = employeeService.saveEmployee(inputDto);
 
         // 3. ASSERT
@@ -109,11 +109,6 @@ class EmployeeServiceTest {
 
         // 4. VERIFY
         verify(employeeDAO, times(1)).save(any(EmployeeEntity.class));
-//        assertNotNull(result);
-//        assertEquals("Agus", result.getName());
-
-//        "deptno"	"dname"	"loc"	"isactive"
-//        20	"RESEARCH"	"DALLAS"	true
     }
 
     @Test
