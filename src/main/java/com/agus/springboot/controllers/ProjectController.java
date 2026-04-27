@@ -21,7 +21,7 @@ public class ProjectController {
     private ProjectService projectService;
 
     @Operation(summary = "Get project by Id", description = "Fetches a single project's data using their unique database ID")
-    @GetMapping("{/id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ProjectDTO> findProjectById(@PathVariable(value = "id") int id){
         return ResponseEntity.ok(projectService.findProjectById(id));
     }
