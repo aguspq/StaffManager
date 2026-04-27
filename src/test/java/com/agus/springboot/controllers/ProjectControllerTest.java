@@ -27,7 +27,7 @@ class ProjectControllerTest {
     private ProjectService projectService;
 
     @Autowired
-    private ObjectMapper objectMapper; // object --> JSON
+    private ObjectMapper objectMapper; // translates object --> JSON
 
     @Test
     @DisplayName("GET /api-rest/projects/{id} - Success")
