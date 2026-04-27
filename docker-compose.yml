@@ -1,0 +1,18 @@
+services:
+  db:                    # Service name
+    image: postgres:15   # Version:15
+    container_name: pg-server  # Docker list name
+
+    ports:               # Bridge
+      - "5432:5432"      # [My pc port] : [Docker pc's port]
+
+    environment:
+      - POSTGRES_DB=employeeAPC2425  # BD name
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgre
+
+    volumes:             # Docker local memory
+      - postgres_data:/var/lib/postgresql/data
+
+     volumes:
+        postgres_data:
