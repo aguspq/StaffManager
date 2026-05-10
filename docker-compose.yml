@@ -1,18 +1,15 @@
 services:
-  db:                    # Service name
-    image: postgres:15   # Version:15
-    container_name: pg-server  # Docker list name
-
-    ports:               # Bridge
-      - "5432:5432"      # [My pc port] : [Docker pc's port]
-
+  db:
+    image: postgres:15
+    container_name: staffmanager-db # Docker list name
     environment:
-      - POSTGRES_DB=employeeAPC2425  # BD name
+      - POSTGRES_DB=employeeAPC2425  # DB Name
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgre
-
-    volumes:             # Docker local memory
+    ports:
+      - "5432:5432"                 # [My pc port] : [docker pc's port]
+    volumes:                        # Docker local memory
       - postgres_data:/var/lib/postgresql/data
 
-     volumes:
-        postgres_data:
+volumes:
+  postgres_data:
