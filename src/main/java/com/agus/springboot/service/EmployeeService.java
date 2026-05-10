@@ -3,6 +3,8 @@ package com.agus.springboot.service;
 import com.agus.springboot.dto.EmployeesDTO;
 import com.agus.springboot.dto.ProjectDTO;
 import com.agus.springboot.exceptions.ResourceNotFoundException;
+import com.agus.springboot.mappers.EmployeeMapper;
+import com.agus.springboot.mappers.ProjectMapper;
 import com.agus.springboot.model.dao.IDeptDAO;
 import com.agus.springboot.model.dao.IEmployeeDAO;
 import com.agus.springboot.model.dao.IProjectDAO;
@@ -21,13 +23,17 @@ import java.util.stream.Collectors;
 
 @Service
 public class EmployeeService {
-    @Autowired
-    private IEmployeeDAO employeeDAO;
-    @Autowired
-    private IProjectDAO projectDAO;
+    private final IEmployeeDAO employeeDAO;
+    private final IProjectDAO projectDAO;
+    private final IDeptDAO deptDAO;
+    private final EmployeeMapper employeeMapper;
 
-    @Autowired
-    private IDeptDAO deptDAO;
+    public EmployeeService(IEmployeeDAO employeeDAO, IProjectDAO projectDAO, IDeptDAO deptDAO, EmployeeMapper employeeMapper){
+        this.employeeDAO = employeeDAO;
+        this.projectDAO = projectDAO;
+        this.deptDAO = deptDAO;
+        this.employeeMapper = employeeMapper;
+    }
 
     public EmployeesDTO saveEmployee(EmployeesDTO dto) {
         // 1. Search department

@@ -89,6 +89,11 @@ public class EmployeeEntity {
     }
     public void setProjects(Set<ProjectEntity> projects) { this.projects = projects; }
     public Set<ProjectEntity> getProjects(){ return projects; }
+
+    public void addProject(ProjectEntity project) {
+        this.projects.add(project);
+        project.getEmployees().add(this);
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
