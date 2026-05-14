@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IEmployeeDAO extends JpaRepository<EmployeeEntity, Integer> {
-    Page<EmployeeEntity> findByDeptIsNullAndIsActiveTrue(Pageable pageable);
+    Page<EmployeeEntity> findByProjectsIsEmptyAndActiveTrue(Pageable pageable);
 
-    Page<EmployeeEntity> findByIsActiveTrue(Pageable pageable);
+    Page<EmployeeEntity> findByActiveTrue(Pageable pageable);
 }

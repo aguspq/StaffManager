@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 public class ProjectDTO {
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    private int id;
+    private Integer id;
     @NotNull
     private String name;
     @NotNull
@@ -38,11 +38,11 @@ public class ProjectDTO {
         return description;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 }

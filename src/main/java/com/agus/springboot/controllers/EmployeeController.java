@@ -2,6 +2,7 @@ package com.agus.springboot.controllers;
 
 import com.agus.springboot.service.EmployeeService;
 import com.agus.springboot.dto.EmployeesDTO;
+import com.agus.springboot.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -17,9 +18,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api-rest/employees")
 @Tag(name = "Employee Management", description = "Operations for managing employees, their department assignments, and project involvements.")
 public class EmployeeController {
-    @Autowired
-    private EmployeeService emplService;
+    private final EmployeeService emplService;
+    private final ProjectService projectService;
 
+    public EmployeeController(EmployeeService emplService, ProjectService projectService){
+        this.emplService = emplService;
+        this.projectService = projectService;
+    }
     @GetMapping
     @Operation(summary = "List all employees", description = "Retrieves a paginated list of employees including their department and project details.")
     public ResponseEntity<Page<EmployeesDTO>> findAllEmployees(@PageableDefault(size = 5) Pageable pageable){ // @DeftaultSize... 5
@@ -80,10 +85,10 @@ public class EmployeeController {
     }
 
     @Operation(summary = "Add employee to project", description = "Links an employee to a project. Ensures the relationship is persisted in the join table.")
-    @PatchMapping("/{id}/project/{projId}")
-    public ResponseEntity<Void> addToEmployeeToProject(@PathVariable(value = "id") int id,
+    @PatchMapping("/{idEmpl}/project/{projId}")
+    public ResponseEntity<Void> addToEmployeeToProject(@PathVariable(value = "idEmpl") int idEmpl,
                                                     @PathVariable(value = "projId")int projId){
-        emplService.addToProject(id, projId);
+        projectService.assignProjectToEmployee(idEmpl, projId);
         return ResponseEntity.noContent().build();
     }
 

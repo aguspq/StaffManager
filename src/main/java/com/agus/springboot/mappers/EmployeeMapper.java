@@ -15,5 +15,10 @@ public interface EmployeeMapper {
     @Mapping(source = "dept.loc", target = "deptLocation")
     @Mapping(source = "projects", target = "projectDTOSet")
     EmployeesDTO toDto(EmployeeEntity employee);
+
+    @Mapping(source = "name", target = "ename")
+    @Mapping(target = "projects", ignore = true)
+    @Mapping(target = "dept", ignore = true)
+    @Mapping(target = "active", ignore = true)
     EmployeeEntity toEntity(EmployeesDTO employeesDTO);
 }
