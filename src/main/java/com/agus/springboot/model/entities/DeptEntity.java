@@ -1,6 +1,5 @@
 package com.agus.springboot.model.entities;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 //import jdk.incubator.foreign.SymbolLookup;
 
@@ -22,7 +21,6 @@ public class DeptEntity {
     @Column(name = "isactive")
     private Boolean isActive = true;
     @OneToMany(mappedBy = "dept", cascade = CascadeType.ALL)
-    @JsonManagedReference
     private Set<EmployeeEntity> employees = new HashSet<>(); // Inicialize ALLWAYS!!!
 
     public DeptEntity(){

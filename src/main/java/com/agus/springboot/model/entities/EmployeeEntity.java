@@ -1,12 +1,6 @@
 package com.agus.springboot.model.entities;
 
-import com.agus.springboot.dto.EmployeesDTO;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -28,14 +22,12 @@ public class EmployeeEntity {
 
     @ManyToOne
     @JoinColumn(name = "deptno", referencedColumnName = "deptno")
-    @JsonBackReference
     private DeptEntity dept;
 
     @Column(name = "isactive")
-    private Boolean isActive = true;
+    private Boolean active = true;
     @ManyToMany
     @JoinTable(name = "employee_project", joinColumns = @JoinColumn(name = "employee_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
-    @JsonIgnoreProperties("projects")
     private Set<ProjectEntity> projects = new HashSet<>();
 
     public EmployeeEntity(){
@@ -81,11 +73,11 @@ public class EmployeeEntity {
     }
 
     public Boolean getActive() {
-        return isActive;
+        return active;
     }
 
     public void setActive(Boolean active) {
-        isActive = active;
+        this.active = active;
     }
     public void setProjects(Set<ProjectEntity> projects) { this.projects = projects; }
     public Set<ProjectEntity> getProjects(){ return projects; }
