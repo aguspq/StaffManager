@@ -1,7 +1,6 @@
 package com.agus.springboot.model.entities;
 
 import jakarta.persistence.*;
-//import jdk.incubator.foreign.SymbolLookup;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -20,7 +19,8 @@ public class DeptEntity {
     private String loc;
     @Column(name = "isactive")
     private Boolean isActive = true;
-    @OneToMany(mappedBy = "dept", cascade = CascadeType.ALL)
+//    @OneToMany(mappedBy = "dept", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "dept", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<EmployeeEntity> employees = new HashSet<>(); // Inicialize ALLWAYS!!!
 
     public DeptEntity(){

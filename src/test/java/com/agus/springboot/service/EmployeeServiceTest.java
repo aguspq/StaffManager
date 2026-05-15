@@ -2,6 +2,7 @@ package com.agus.springboot.service;
 
 import com.agus.springboot.dto.EmployeesDTO;
 import com.agus.springboot.exceptions.ResourceNotFoundException;
+import com.agus.springboot.mappers.EmployeeMapper;
 import com.agus.springboot.model.dao.IDeptDAO;
 import com.agus.springboot.model.dao.IEmployeeDAO;
 import com.agus.springboot.model.entities.DeptEntity;
@@ -13,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Optional;
 
@@ -35,6 +37,8 @@ class EmployeeServiceTest {
     @Mock
     private IEmployeeDAO employeeDAO;
     @Mock private IDeptDAO deptDAO;
+    @Mock
+    private EmployeeMapper employeeMapper;
 
     @InjectMocks
     private EmployeeService employeeService;
@@ -82,33 +86,37 @@ class EmployeeServiceTest {
     @Test
     @DisplayName("Saves employee")
     void saveEmployee_ShouldReturnSavedDto_WhenDataIsCorrect(){
-        // 1. SET / ARRANGE
-        // Create INPUT DTO (what user sends)
-        EmployeesDTO inputDto = new EmployeesDTO();
-        inputDto.setName("Agus");
-        inputDto.setJob("DEV");
-        inputDto.setDeptNo(20);
+        final int idEmpl = 10;
+        final int idDept = 20;
+        //        arrange
+        EmployeesDTO intputDto = new EmployeesDTO();
+        intputDto.setDeptNo(idDept);
 
-        // Create "simulated" entities for the Mocks
-        DeptEntity deptEntity = new DeptEntity(20, "RESEARCH", "DALLAS", true);
-        EmployeeEntity savedEntity = new EmployeeEntity("Agus", "DEV", deptEntity);
-        savedEntity.setEmpno(100);
+        DeptEntity dept = new DeptEntity();
+        dept.setDeptno(idDept);
 
-        // MOCKITO: Program answers
-        Mockito.when(deptDAO.findById(20)).thenReturn(Optional.of(deptEntity));
-        Mockito.when(employeeDAO.save(any(EmployeeEntity.class))).thenReturn(savedEntity);
+        EmployeeEntity employee = new EmployeeEntity();
+        EmployeesDTO outputDto = new EmployeesDTO();
+        outputDto.setEmpno(idEmpl);
 
-        // 2. ACT
-        // Call using the DTO, imitating the Controller's behavior
-        EmployeesDTO result = employeeService.saveEmployee(inputDto);
+        Mockito.when(deptDAO.findById(intputDto.getDeptNo())).thenReturn(Optional.of(dept));
+        Mockito.when(employeeMapper.toEntity(intputDto)).thenReturn(employee);
+        Mockito.when(employeeDAO.save(employee)).thenReturn(employee);
+        Mockito.when(employeeMapper.toDto(employee)).thenReturn(outputDto);
 
-        // 3. ASSERT
-        assertNotNull(result);
-        assertEquals(100, result.getEmpno());
-        assertEquals("Agus", result.getName());
+//        act
+        EmployeesDTO savedEmpl = employeeService.saveEmployee(intputDto);
 
-        // 4. VERIFY
-        verify(employeeDAO, times(1)).save(any(EmployeeEntity.class));
+//        assert
+        assertNotNull(savedEmpl);
+        assertEquals(idEmpl, savedEmpl.getEmpno());
+
+//         verify
+        verify(deptDAO, times(1)).findById(idDept);
+        verify(employeeMapper, times(1)).toEntity(intputDto);
+        verify(employeeDAO, times(1)).save(employee);
+        verify(employeeMapper, times(1)).toDto(employee);
+
     }
 
     @Test

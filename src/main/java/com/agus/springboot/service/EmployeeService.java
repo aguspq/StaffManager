@@ -41,31 +41,23 @@ public class EmployeeService {
 //            throw new RuntimeException("You can't pass an ID to create");
             throw new ResourceNotFoundException("You can't pass an ID to create");
 
-//         Fast Fail, to force Spring to throw MY exception
-//        if(dto.getDeptno() == null)
-//            throw new ResourceNotFoundException("Department ID is mandatory to create an employee");
-
         Optional<DeptEntity> dept = deptDAO.findById(dto.getDeptNo());
         if (dept.isEmpty()) {
-//            throw new RuntimeException("Department does not exist");
             throw new ResourceNotFoundException("Department with ID: " + dto.getDeptNo() + " not found");
         }
-        // 2. Map Entity
-        EmployeeEntity emplEntity = new EmployeeEntity();
-        emplEntity.setEname(dto.getName());
-        emplEntity.setJob(dto.getJob());
-        emplEntity.setDept(dept.get());
-
+        // 2. Map Entity;
         // 3. Save
-        EmployeeEntity saved = employeeDAO.save(emplEntity);
+        EmployeeEntity employee = employeeMapper.toEntity(dto);
+
+         employeeDAO.save(employee);
 
         // 5. Return DTO
-        return convertEntityToDTO(saved);
+        return employeeMapper.toDto(employee);
     }
 
     public EmployeesDTO findEmployeeById(int id){
         return employeeDAO.findById(id)
-                .map(this::convertEntityToDTO)
+                .map(employeeMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with ID: " + id));
     }
 
@@ -73,44 +65,44 @@ public class EmployeeService {
     public Page<EmployeesDTO> findAllEmployees(Pageable pageable) {
 //        // convert List<EmployeeEntity> ==> List<EmployeesDTO>
 //        NO stream() with Pageable
-        return employeeDAO.findByIsActiveTrue(pageable)
-                .map(this::convertEntityToDTO);
+        return employeeDAO.findByActiveTrue(pageable)
+                .map(employeeMapper::toDto);
 
     }
 
-    private ProjectDTO convertProjectToDTO(ProjectEntity project){
-        ProjectDTO dto = new ProjectDTO(
-                project.getName(),
-                project.getDescription()
-        );
-
-        return dto;
-    }
+//    private ProjectDTO convertProjectToDTO(ProjectEntity project){
+//        ProjectDTO dto = new ProjectDTO(
+//                project.getName(),
+//                project.getDescription()
+//        );
+//
+//        return dto;
+//    }
 
 //    INSTEAD OF AND LIST WE CONVERT AN OBJECT
-    private EmployeesDTO convertEntityToDTO(EmployeeEntity employeeEntity){
-        EmployeesDTO dto = new EmployeesDTO();
-        dto.setEmpno(employeeEntity.getEmpno());
-        dto.setName(employeeEntity.getEname());
-        dto.setJob(employeeEntity.getJob());
-//        dto.setProjectDTOSet(employeeEntity.getProjects());
-//        employeeEntity.getProjects().stream().map(this::convertProjectToDTO);
-
-        if(employeeEntity.getProjects() != null){
-            dto.setProjectDTOSet(employeeEntity.getProjects().stream()
-                    .map(this::convertProjectToDTO)
-                    .collect(Collectors.toSet()));
-        }
-
-        if(employeeEntity.getDept() != null){
-            dto.setDeptNo(employeeEntity.getDept().getDeptno());
-            dto.setDeptName(employeeEntity.getDept().getDname());
-            dto.setDeptLocation(employeeEntity.getDept().getLoc());
-        }
-
-        return dto;
-
-    }
+//    private EmployeesDTO convertEntityToDTO(EmployeeEntity employeeEntity){
+//        EmployeesDTO dto = new EmployeesDTO();
+//        dto.setEmpno(employeeEntity.getEmpno());
+//        dto.setName(employeeEntity.getEname());
+//        dto.setJob(employeeEntity.getJob());
+////        dto.setProjectDTOSet(employeeEntity.getProjects());
+////        employeeEntity.getProjects().stream().map(this::convertProjectToDTO);
+//
+//        if(employeeEntity.getProjects() != null){
+//            dto.setProjectDTOSet(employeeEntity.getProjects().stream()
+//                    .map(this::convertProjectToDTO)
+//                    .collect(Collectors.toSet()));
+//        }
+//
+//        if(employeeEntity.getDept() != null){
+//            dto.setDeptNo(employeeEntity.getDept().getDeptno());
+//            dto.setDeptName(employeeEntity.getDept().getDname());
+//            dto.setDeptLocation(employeeEntity.getDept().getLoc());
+//        }
+//
+//        return dto;
+//
+//    }
 
     public void deleteUser(int id){
         EmployeeEntity employee = employeeDAO.findById(id)
@@ -137,14 +129,14 @@ public class EmployeeService {
             employee.setDept(dept);
         }
 
-        return convertEntityToDTO(employeeDAO.save(employee));
+        return employeeMapper.toDto(employeeDAO.save(employee));
     }
 
     public Page<EmployeesDTO> findUnassignedEmployeesDTO(Pageable pageable){
-        Page<EmployeeEntity> nullEmplList = employeeDAO.findByDeptIsNullAndIsActiveTrue(pageable); // <-- filter
+        Page<EmployeeEntity> nullEmplList = employeeDAO.findByProjectsIsEmptyAndActiveTrue(pageable);
 
         return nullEmplList
-                .map(this::convertEntityToDTO);
+                .map(employeeMapper::toDto);
 
     }
 
@@ -165,25 +157,8 @@ public class EmployeeService {
         } else
             throw new ResourceNotFoundException("Dept number must be greater than 0");
 
-        return convertEntityToDTO(employeeDAO.save(employee));
+        return employeeMapper.toDto(employeeDAO.save(employee));
 
     }
 
-    public void addToProject(int employeeId, int projectId){
-        EmployeeEntity empl = employeeDAO.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee with ID: " + employeeId + " not found"));
-
-        ProjectEntity project = projectDAO.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project with ID: " + projectId + " not found"));
-
-        Set<ProjectEntity> projectEntities = empl.getProjects();
-
-        if(projectEntities == null){
-            projectEntities = new HashSet<>();
-            empl.setProjects(projectEntities);
-        }
-
-        projectEntities.add(project);
-        employeeDAO.save(empl);
-    }
 }
