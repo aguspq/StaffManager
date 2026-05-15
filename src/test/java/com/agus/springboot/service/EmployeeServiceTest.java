@@ -46,25 +46,32 @@ class EmployeeServiceTest {
     @Test
     @DisplayName("Return DTO if Employee exists")
     void findEmployeeById_ShouldReturnDto_WhenEmployeeExists(){
-        int id = 1;
+        final int emplId = 1;
+        final String emplName = "Agus";
 
-        EmployeeEntity mockEntity = new EmployeeEntity();
-        mockEntity.setEmpno(id);
-        mockEntity.setEname("Agus");
-        // write the mandatory
+//         arrange
+        EmployeeEntity dbEntity = new EmployeeEntity();
+        dbEntity.setEmpno(emplId);
 
-//        "trick" DB. DAO return X (mockEntity)
-        Mockito.when(employeeDAO.findById(id)).thenReturn(Optional.of(mockEntity));
+        EmployeesDTO emplDto = new EmployeesDTO();
+        emplDto.setEmpno(emplId);
+        emplDto.setName(emplName);
 
-        // act
-        EmployeesDTO result = employeeService.findEmployeeById(id);
+        Mockito.when(employeeDAO.findById(emplId)).thenReturn(Optional.of(dbEntity));
+        Mockito.when(employeeMapper.toDto(dbEntity)).thenReturn(emplDto);
 
-        // verify
-        assertNotNull(result);
-        assertEquals("Agus", result.getName());
+//        act
+        EmployeesDTO savedEmployee = employeeService.findEmployeeById(emplId);
 
-        verify(employeeDAO, times(1)).findById(id);
-        // checks if I call the DAO
+//            assert
+        assertNotNull(savedEmployee);
+        assertEquals(emplId, savedEmployee.getEmpno());
+        assertEquals(emplName, savedEmployee.getName());
+
+//        verify
+        verify(employeeDAO, times(1)).findById(emplId);
+        verify(employeeMapper, times(1)).toDto(dbEntity);
+
     }
 
     @Test
