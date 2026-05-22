@@ -70,40 +70,6 @@ public class EmployeeService {
 
     }
 
-//    private ProjectDTO convertProjectToDTO(ProjectEntity project){
-//        ProjectDTO dto = new ProjectDTO(
-//                project.getName(),
-//                project.getDescription()
-//        );
-//
-//        return dto;
-//    }
-
-//    INSTEAD OF AND LIST WE CONVERT AN OBJECT
-//    private EmployeesDTO convertEntityToDTO(EmployeeEntity employeeEntity){
-//        EmployeesDTO dto = new EmployeesDTO();
-//        dto.setEmpno(employeeEntity.getEmpno());
-//        dto.setName(employeeEntity.getEname());
-//        dto.setJob(employeeEntity.getJob());
-////        dto.setProjectDTOSet(employeeEntity.getProjects());
-////        employeeEntity.getProjects().stream().map(this::convertProjectToDTO);
-//
-//        if(employeeEntity.getProjects() != null){
-//            dto.setProjectDTOSet(employeeEntity.getProjects().stream()
-//                    .map(this::convertProjectToDTO)
-//                    .collect(Collectors.toSet()));
-//        }
-//
-//        if(employeeEntity.getDept() != null){
-//            dto.setDeptNo(employeeEntity.getDept().getDeptno());
-//            dto.setDeptName(employeeEntity.getDept().getDname());
-//            dto.setDeptLocation(employeeEntity.getDept().getLoc());
-//        }
-//
-//        return dto;
-//
-//    }
-
     public void deleteUser(int id){
         EmployeeEntity employee = employeeDAO.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee with ID: " + id + " not found"));

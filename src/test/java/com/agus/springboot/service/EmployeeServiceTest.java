@@ -14,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Optional;
 
@@ -161,6 +160,91 @@ class EmployeeServiceTest {
 
         verify(deptDAO, never()).findById(anyInt());
         verify(employeeDAO, never()).save(any());
+
+    }
+
+    @Test
+    @DisplayName("Soft Deletes employee")
+    void deleteUser_ShouldSetChangeActiveToFalse_WhenEmployeeExists() {
+//        arrange
+        final int idEmpl = 10;
+
+        EmployeeEntity employee = new EmployeeEntity();
+        employee.setEmpno(idEmpl);
+        employee.setActive(true);
+
+        Mockito.when(employeeDAO.findById(idEmpl)).thenReturn(Optional.of(employee));
+
+//        act
+        employeeService.deleteUser(idEmpl);
+
+//        assert
+        assertFalse(employee.getActive(), "'Active' should change to 'false'");
+
+        verify(employeeDAO, times(1)).findById(idEmpl);
+        verify(employeeDAO, times(1)).save(employee);
+    }
+
+    @Test
+    @DisplayName("Try to apply soft delete but employee does not exists")
+    void deleteUser_ShouldThrowException_WhenEmployeeDoesNotExists(){
+//        arrange
+        final int idEmpl = 999;
+
+        EmployeeEntity employee = new EmployeeEntity();
+        employee.setEmpno(idEmpl);
+
+        Mockito.when(employeeDAO.findById(idEmpl)).thenReturn(Optional.empty());
+
+//        assert
+        assertThrows(ResourceNotFoundException.class, () ->{
+            employeeService.deleteUser(idEmpl);
+        });
+//        verify
+        verify(employeeDAO, times(1)).findById(idEmpl);
+        verify(employeeDAO, never()).save(any());
+
+    }
+
+    @Test
+    @DisplayName("Updates employee")
+    void updateEmployee_ShouldReturnUpdatedDTO(){
+//        arrange
+        final int input = 1;
+        final int deptNoId = 10;
+        EmployeesDTO inputDto = new EmployeesDTO();
+        inputDto.setName("New name");
+        inputDto.setJob("New job");
+//        inputDto.setDeptNo(deptNoId);
+
+        EmployeeEntity employeeDb = new EmployeeEntity();
+        employeeDb.setEmpno(1);
+
+        EmployeesDTO expectedDto = new EmployeesDTO();
+        expectedDto.setName("New name");
+        expectedDto.setJob("New job");
+
+        Mockito.when(employeeDAO.findById(input)).thenReturn(Optional.of(employeeDb));
+        Mockito.when(employeeDAO.save(any())).thenReturn(employeeDb);
+        Mockito.when(employeeMapper.toDto(employeeDb)).thenReturn(expectedDto);
+
+//        assert
+        EmployeesDTO outputDto = employeeService.updateEmployee(input, inputDto);
+
+
+//        assert
+        assertEquals("New name", outputDto.getName());
+        assertEquals("New job", outputDto.getJob());
+//        assertEquals(deptNoId, outputDto.getDeptNo());
+
+
+
+//        verify
+
+        verify(employeeDAO, times(1)).findById(input);
+        verify(employeeDAO, times(1)).save(any());
+        verify(employeeMapper, times(1)).toDto(employeeDb);
+        verify(deptDAO, never()).findById(any());
 
     }
 
