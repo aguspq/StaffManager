@@ -228,16 +228,13 @@ class EmployeeServiceTest {
         Mockito.when(employeeDAO.save(any())).thenReturn(employeeDb);
         Mockito.when(employeeMapper.toDto(employeeDb)).thenReturn(expectedDto);
 
-//        assert
+//        act
         EmployeesDTO outputDto = employeeService.updateEmployee(input, inputDto);
-
 
 //        assert
         assertEquals("New name", outputDto.getName());
         assertEquals("New job", outputDto.getJob());
 //        assertEquals(deptNoId, outputDto.getDeptNo());
-
-
 
 //        verify
 
@@ -246,6 +243,53 @@ class EmployeeServiceTest {
         verify(employeeMapper, times(1)).toDto(employeeDb);
         verify(deptDAO, never()).findById(any());
 
+    }
+
+    @Test
+    @DisplayName("Updates employee with dept")
+    void updateEmployee_ShouldReturnUpdatedDTO_withDept(){
+        final int idEmployee = 1;
+        final int idDept = 10;
+
+//        arrange
+        EmployeeEntity dbEmployee = new EmployeeEntity();
+        dbEmployee.setEmpno(idEmployee);
+
+        DeptEntity dbDept = new DeptEntity();
+        dbDept.setDeptno(idDept);
+
+        EmployeesDTO inputDto = new EmployeesDTO();
+        inputDto.setDeptNo(idDept);
+        inputDto.setName("Agus");
+        inputDto.setJob("Dev");
+
+        // return
+        EmployeesDTO expectedDto = new EmployeesDTO();
+        expectedDto.setEmpno(idEmployee);
+        expectedDto.setName("Agus");
+        expectedDto.setJob("Dev");
+        expectedDto.setDeptNo(idDept);
+
+        Mockito.when(employeeDAO.findById(idEmployee)).thenReturn(Optional.of(dbEmployee));
+        Mockito.when(deptDAO.findById(idDept)).thenReturn(Optional.of(dbDept));
+        Mockito.when(employeeDAO.save(any())).thenReturn(dbEmployee);
+        Mockito.when(employeeMapper.toDto(dbEmployee)).thenReturn(expectedDto);
+
+//        act
+        EmployeesDTO resultDto = employeeService.updateEmployee(idEmployee, inputDto);
+
+//        assert
+        assertNotNull(resultDto);
+        assertEquals("Agus", resultDto.getName());
+        assertEquals("Dev", resultDto.getJob());
+        assertEquals(idEmployee, resultDto.getEmpno());
+        assertEquals(idDept, resultDto.getDeptNo());
+
+//        verify
+        verify(employeeDAO, times(1)).findById(idEmployee);
+        verify(deptDAO, times(1)).findById(idDept);
+        verify(employeeDAO, times(1)).save(any());
+        verify(employeeMapper, times(1)).toDto(dbEmployee);
     }
 
 }
