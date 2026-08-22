@@ -27,7 +27,7 @@ public class DeptEntity {
 
     }
 
-    public DeptEntity(int deptno, String dname, String loc, boolean isActive){
+    public DeptEntity(Integer deptno, String dname, String loc, boolean isActive){
         this.deptno = deptno;
         this.dname = dname;
         this.loc = loc;
@@ -41,7 +41,7 @@ public class DeptEntity {
         return deptno;
     }
 
-    public void setDeptno(int deptno) {
+    public void setDeptno(Integer deptno) {
         this.deptno = deptno;
     }
 
