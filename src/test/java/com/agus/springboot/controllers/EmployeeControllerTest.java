@@ -5,6 +5,7 @@ import com.agus.springboot.exceptions.ResourceNotFoundException;
 import com.agus.springboot.service.EmployeeService;
 import com.agus.springboot.service.ProjectService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hibernate.annotations.NotFound;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +13,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.ArgumentMatchers.eq;
+//import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.put;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EmployeeController.class)
@@ -87,8 +90,79 @@ public class EmployeeControllerTest {
     @Test
     @DisplayName("PUT api-rest/employees/{id} - Success")
     void putUpdateEmployee_ShouldUpdate() throws Exception{
-        
+        int idEmployee = 1;
+
+        EmployeesDTO updatedEmployee = new EmployeesDTO();
+        updatedEmployee.setEmpno(idEmployee);
+        updatedEmployee.setName("Agus Updated");
+        updatedEmployee.setJob("DEV");
+        updatedEmployee.setDeptNo(10);
+
+        when(employeeService.updateEmployee(eq(idEmployee), any(EmployeesDTO.class)))
+                .thenReturn(updatedEmployee);
+
+        mockMvc.perform(put("/api-rest/employees/" + idEmployee)
+                .contentType(MediaType.APPLICATION_JSON) // 1. We tell then tha I send a JSON
+                .content(objectMapper.writeValueAsString(updatedEmployee))) // 2. Send real JSON
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // 4. Server returns JSON
+                .andExpect(jsonPath("$.empno").value(idEmployee))
+                .andExpect(jsonPath("$.name").value("Agus Updated"));
+    }
+    @Test
+    @DisplayName("PUT api-rest/employees/{id} - FAIL")
+    void putUpdateEmployee_ShouldFail() throws Exception{
+        int idEmployee = 999;
+
+        EmployeesDTO updatedEmployee = new EmployeesDTO();
+        updatedEmployee.setName("Agus Updated");
+        updatedEmployee.setJob("DEV");
+        updatedEmployee.setDeptNo(10);
+
+        when(employeeService.updateEmployee(eq(idEmployee), any(EmployeesDTO.class)))
+                .thenThrow(new ResourceNotFoundException("Employee not found"));
+
+
+        mockMvc.perform(put("/api-rest/employees/" + idEmployee)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedEmployee)))
+                .andExpect(status().isNotFound());
     }
 
+
+
+    @Test
+    @DisplayName("DELETE api-rest/employees/{id} -- SUCCESS")
+    void deleteEmployee_ShouldDelete() throws Exception{
+        int employeeId = 10;
+
+        EmployeesDTO employeeToDelete = new EmployeesDTO();
+        employeeToDelete.setName("Agus");
+        employeeToDelete.setJob("DEV");
+        employeeToDelete.setDeptNo(10);
+
+        doNothing().when(employeeService).deleteUser(employeeId);
+
+        mockMvc.perform(patch("/api-rest/employees/" + employeeId))
+                .andExpect(status().isNoContent());
+
+    }
+
+    @Test
+    @DisplayName("DELETE api-rest/employees/{id} -- FAIL")
+    void deleteEmployee_ShouldFail() throws Exception{
+        int nonValidId = 999;
+
+        EmployeesDTO employeeToDelete = new EmployeesDTO();
+        employeeToDelete.setName("Agus");
+        employeeToDelete.setJob("DEV");
+        employeeToDelete.setDeptNo(10);
+
+        doThrow(new ResourceNotFoundException("Employee not found"))
+                .when(employeeService).deleteUser(nonValidId);
+
+        mockMvc.perform(patch("/api-rest/employees/" + nonValidId))
+                .andExpect(status().isNotFound());
+    }
 
 }
