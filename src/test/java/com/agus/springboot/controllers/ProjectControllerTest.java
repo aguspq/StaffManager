@@ -52,14 +52,24 @@ class ProjectControllerTest {
     @DisplayName("PATCH /api-rest/projects/{id} - Not Found")
     void deleteProject_ShouldReturn404_WhenProjectNotFound() throws Exception {
         int nonValidId  = 99;
-        ProjectDTO projectDTO = new ProjectDTO("Ex Proj", "Project desc");
-        projectDTO.setId(nonValidId);
 
         doThrow(new ResourceNotFoundException("Not found"))
                 .when(projectService).deleteProject(nonValidId);
 
         mockMvc.perform(patch("/api-rest/projects/" + nonValidId))
                 .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    @DisplayName("PATCH /api-rest/projects/{id} - Not Found")
+    void deleteProject_ShouldDelete() throws Exception{
+        int projectId = 10;
+
+        doNothing().when(projectService).deleteProject(projectId);
+
+        mockMvc.perform(patch("/api-rest/projects/" + projectId))
+                .andExpect(status().isNoContent());
 
     }
 

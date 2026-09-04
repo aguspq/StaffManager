@@ -1,6 +1,8 @@
 package com.agus.springboot.service;
 
+import com.agus.springboot.dto.ProjectDTO;
 import com.agus.springboot.exceptions.ResourceNotFoundException;
+import com.agus.springboot.mappers.ProjectMapper;
 import com.agus.springboot.model.dao.IEmployeeDAO;
 import com.agus.springboot.model.dao.IProjectDAO;
 import com.agus.springboot.model.entities.EmployeeEntity;
@@ -25,8 +27,12 @@ import static org.mockito.Mockito.*;
 class ProjectServiceTest {
     @Mock
     private IEmployeeDAO employeeDAO;
-    @Mock private IProjectDAO projectDAO;
-    @InjectMocks ProjectService projectService;
+    @Mock
+    private IProjectDAO projectDAO;
+    @Mock
+    private ProjectMapper projectMapper;
+    @InjectMocks
+    ProjectService projectService;
 
     @Test
     @DisplayName("Assign project to employee")
@@ -114,4 +120,34 @@ class ProjectServiceTest {
         verify(projectDAO, times(1)).findById(idProj);
         verify(projectDAO, times(1)).save(project);
     }
+
+    @Test
+    @DisplayName("Returns ProjectDTO when project exists")
+    void findProjectById_ShouldReturnDTO_WhenProjectExists(){
+        // arrange
+        int idProject = 1;
+        // DB
+        ProjectEntity project = new ProjectEntity();
+        project.setName("Agus");
+        // mapper
+        ProjectDTO expectedDto = new ProjectDTO();
+        expectedDto.setName("Agus");
+
+        Mockito.when(projectDAO.findById(idProject)).thenReturn(Optional.of(project));
+        Mockito.when(projectMapper.toDto(project)).thenReturn(expectedDto);
+
+        // act
+        ProjectDTO result = projectService.findProjectById(idProject);
+
+        // assert
+        assertNotNull(result);
+        assertEquals(expectedDto.getName(), result.getName());
+
+        // verify
+        verify(projectDAO, times(1)).findById(idProject);
+        verify(projectMapper, times(1)).toDto(project);
+
+    }
+
+
 }

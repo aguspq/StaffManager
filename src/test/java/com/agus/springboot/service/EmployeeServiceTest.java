@@ -215,7 +215,6 @@ class EmployeeServiceTest {
         EmployeesDTO inputDto = new EmployeesDTO();
         inputDto.setName("New name");
         inputDto.setJob("New job");
-//        inputDto.setDeptNo(deptNoId);
 
         EmployeeEntity employeeDb = new EmployeeEntity();
         employeeDb.setEmpno(1);

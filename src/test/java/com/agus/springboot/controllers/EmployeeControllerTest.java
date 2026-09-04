@@ -136,11 +136,6 @@ public class EmployeeControllerTest {
     void deleteEmployee_ShouldDelete() throws Exception{
         int employeeId = 10;
 
-        EmployeesDTO employeeToDelete = new EmployeesDTO();
-        employeeToDelete.setName("Agus");
-        employeeToDelete.setJob("DEV");
-        employeeToDelete.setDeptNo(10);
-
         doNothing().when(employeeService).deleteUser(employeeId);
 
         mockMvc.perform(patch("/api-rest/employees/" + employeeId))
