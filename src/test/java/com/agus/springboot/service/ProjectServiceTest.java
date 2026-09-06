@@ -67,7 +67,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    @DisplayName("Throws ResourceNotFoundException when PROJECT doesn't exists ")
+    @DisplayName("Throws ResourceNotFoundException when PROJECT not found ")
     void assignProjectToEmployee_ShouldThrowException_WhenProjNotFound(){
         int idProj = 99;
         int idEmpl = 999;
@@ -86,7 +86,7 @@ class ProjectServiceTest {
         }
 
     @Test
-    @DisplayName("Throws ResourceNotFoundException when EMPLOYEE doesn't exists ")
+    @DisplayName("Throws ResourceNotFoundException when EMPLOYEE not found ")
     void assignProjectToEmployee_ShouldThrowException_WhenEmplNotFound() {
         int idProj = 99;
         int idEmpl = 999;
@@ -106,7 +106,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    @DisplayName("Deletes project")
+    @DisplayName("Soft deletes project by setting isActive to false")
     void deleteProject_Succeed() {
         int idProj = 999;
         ProjectEntity project = new ProjectEntity();
@@ -149,5 +149,65 @@ class ProjectServiceTest {
 
     }
 
+
+    @Test
+    @DisplayName("Throws ResourceNotFoundException when project not found")
+    void findProjectById_ShouldThrowException_WhenProjectNotFound(){
+        int nonValidId = 999;
+
+        Mockito.when(projectDAO.findById(nonValidId)).thenReturn(Optional.empty());
+
+        // act & assert
+//        we call it here to catch the exception
+        assertThrows(ResourceNotFoundException.class, () -> {
+            projectService.findProjectById(nonValidId);
+        });
+
+        verify(projectDAO, times(1)).findById(nonValidId);
+        verify(projectMapper, never()).toDto(any());
+
+    }
+
+    @Test
+    @DisplayName("Saves project and returns saved ProjectDTO")
+    void saveProject_ShouldSaveAndReturnDTO(){
+        int idProject = 1;
+        //
+        ProjectDTO inputDto = new ProjectDTO();
+        inputDto.setName("New Project");
+
+//        entity created by Mapper  (before DB)
+        ProjectEntity entityToSave = new ProjectEntity();
+        entityToSave.setName("New Project");
+
+//        after .save() (with ID)
+        ProjectEntity savedEntity = new ProjectEntity();
+        savedEntity.setName("New Project");
+        savedEntity.setIsActive(true);
+        savedEntity.setId(idProject);
+
+
+        ProjectDTO savedDto = new ProjectDTO();
+        savedDto.setId(idProject);
+        savedDto.setName("New Project");
+
+        Mockito.when(projectMapper.toEntity(inputDto)).thenReturn(entityToSave);
+        Mockito.when(projectDAO.save(entityToSave)).thenReturn(savedEntity);
+        Mockito.when(projectMapper.toDto(savedEntity)).thenReturn(savedDto);
+
+        // act
+        ProjectDTO result = projectService.saveProject(inputDto);
+
+        // assert
+
+        assertNotNull(result);
+        assertEquals(idProject, result.getId());
+        assertEquals("New Project", result.getName());
+        assertTrue(entityToSave.getIsActive(), "The service must set isActive to true before saving");
+
+        verify(projectMapper, times(1)).toEntity(inputDto);
+        verify(projectDAO, times(1)).save(entityToSave);
+        verify(projectMapper, times(1)).toDto(savedEntity);
+    }
 
 }
