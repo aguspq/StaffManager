@@ -38,12 +38,10 @@ public class EmployeeService {
     public EmployeesDTO saveEmployee(EmployeesDTO dto) {
         // 1. Search department
         if(dto.getEmpno() != null)
-//            throw new RuntimeException("You can't pass an ID to create");
-            throw new ResourceNotFoundException("You can't pass an ID to create");
+            throw new IllegalArgumentException("You can't pass an ID to create a new employee");
 
-        Optional<DeptEntity> dept = deptDAO.findById(dto.getDeptNo());
-        if (dept.isEmpty()) {
-            throw new ResourceNotFoundException("Department with ID: " + dto.getDeptNo() + " not found");
+        if(dto.getDeptNo() != null){
+            deptDAO.findById(dto.getDeptNo()).orElseThrow(() -> new ResourceNotFoundException("Department with ID: " + dto.getDeptNo() + " not found"));
         }
         // 2. Map Entity;
         // 3. Save
@@ -63,8 +61,6 @@ public class EmployeeService {
 
 
     public Page<EmployeesDTO> findAllEmployees(Pageable pageable) {
-//        // convert List<EmployeeEntity> ==> List<EmployeesDTO>
-//        NO stream() with Pageable
         return employeeDAO.findByActiveTrue(pageable)
                 .map(employeeMapper::toDto);
 
@@ -80,8 +76,6 @@ public class EmployeeService {
     }
 
     public EmployeesDTO updateEmployee(int id, EmployeesDTO dtoUpdated){
-//        Optional<EmployeeEntity> employeeEntityOptional = employeeDAO.findById(id);
-//        1- get EmployeeEntity 2- Save it 3- return DTO (?)
         EmployeeEntity employee = employeeDAO.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee with ID: " + id + " not found"));
 
@@ -116,12 +110,12 @@ public class EmployeeService {
 
             if(dept.getIsActive())
                 employee.setDept(dept);
-            else throw new ResourceNotFoundException("Dept must be active");
+            else throw new IllegalArgumentException("Dept must be active");
 
         } else if(deptno == 0){
             employee.setDept(null);
         } else
-            throw new ResourceNotFoundException("Dept number must be greater than 0");
+            throw new IllegalArgumentException("Dept number must be greater than 0");
 
         return employeeMapper.toDto(employeeDAO.save(employee));
 

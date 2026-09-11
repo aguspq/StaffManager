@@ -95,8 +95,8 @@ class EmployeeServiceTest {
         final int idEmpl = 10;
         final int idDept = 20;
         //        arrange
-        EmployeesDTO intputDto = new EmployeesDTO();
-        intputDto.setDeptNo(idDept);
+        EmployeesDTO inputDto = new EmployeesDTO();
+        inputDto.setDeptNo(idDept);
 
         DeptEntity dept = new DeptEntity();
         dept.setDeptno(idDept);
@@ -105,13 +105,13 @@ class EmployeeServiceTest {
         EmployeesDTO outputDto = new EmployeesDTO();
         outputDto.setEmpno(idEmpl);
 
-        Mockito.when(deptDAO.findById(intputDto.getDeptNo())).thenReturn(Optional.of(dept));
-        Mockito.when(employeeMapper.toEntity(intputDto)).thenReturn(employee);
+        Mockito.when(deptDAO.findById(inputDto.getDeptNo())).thenReturn(Optional.of(dept));
+        Mockito.when(employeeMapper.toEntity(inputDto)).thenReturn(employee);
         Mockito.when(employeeDAO.save(employee)).thenReturn(employee);
         Mockito.when(employeeMapper.toDto(employee)).thenReturn(outputDto);
 
 //        act
-        EmployeesDTO savedEmpl = employeeService.saveEmployee(intputDto);
+        EmployeesDTO savedEmpl = employeeService.saveEmployee(inputDto);
 
 //        assert
         assertNotNull(savedEmpl);
@@ -119,7 +119,7 @@ class EmployeeServiceTest {
 
 //         verify
         verify(deptDAO, times(1)).findById(idDept);
-        verify(employeeMapper, times(1)).toEntity(intputDto);
+        verify(employeeMapper, times(1)).toEntity(inputDto);
         verify(employeeDAO, times(1)).save(employee);
         verify(employeeMapper, times(1)).toDto(employee);
 
@@ -149,12 +149,12 @@ class EmployeeServiceTest {
     }
 
     @Test
-    @DisplayName("Throw exception if DTO has ID")
+    @DisplayName("Throws IllegalArgumentException if DTO has ID")
     void saveEmployee_ShouldThrowException_WhenIdIsProvided() {
         EmployeesDTO inputDto = new EmployeesDTO();
         inputDto.setEmpno(1);
 
-        assertThrows(ResourceNotFoundException.class, () ->{
+        assertThrows(IllegalArgumentException.class, () ->{
             employeeService.saveEmployee(inputDto);
         });
 
@@ -191,9 +191,6 @@ class EmployeeServiceTest {
 //        arrange
         final int idEmpl = 999;
 
-        EmployeeEntity employee = new EmployeeEntity();
-        employee.setEmpno(idEmpl);
-
         Mockito.when(employeeDAO.findById(idEmpl)).thenReturn(Optional.empty());
 
 //        assert
@@ -211,34 +208,40 @@ class EmployeeServiceTest {
     void updateEmployee_ShouldReturnUpdatedDTO(){
 //        arrange
         final int input = 1;
-        final int deptNoId = 10;
+
         EmployeesDTO inputDto = new EmployeesDTO();
         inputDto.setName("New name");
         inputDto.setJob("New job");
 
         EmployeeEntity employeeDb = new EmployeeEntity();
         employeeDb.setEmpno(1);
+        employeeDb.setEname("Old name");
+        employeeDb.setJob("Old job");
+
 
         EmployeesDTO expectedDto = new EmployeesDTO();
         expectedDto.setName("New name");
         expectedDto.setJob("New job");
 
         Mockito.when(employeeDAO.findById(input)).thenReturn(Optional.of(employeeDb));
-        Mockito.when(employeeDAO.save(any())).thenReturn(employeeDb);
+        Mockito.when(employeeDAO.save(employeeDb)).thenReturn(employeeDb);
         Mockito.when(employeeMapper.toDto(employeeDb)).thenReturn(expectedDto);
 
 //        act
         EmployeesDTO outputDto = employeeService.updateEmployee(input, inputDto);
 
+
 //        assert
-        assertEquals("New name", outputDto.getName());
-        assertEquals("New job", outputDto.getJob());
-//        assertEquals(deptNoId, outputDto.getDeptNo());
+        assertNotNull(outputDto);
+
+        assertEquals("New name", employeeDb.getEname());
+        assertEquals("New job", employeeDb.getJob());
+
 
 //        verify
 
         verify(employeeDAO, times(1)).findById(input);
-        verify(employeeDAO, times(1)).save(any());
+        verify(employeeDAO, times(1)).save(employeeDb);
         verify(employeeMapper, times(1)).toDto(employeeDb);
         verify(deptDAO, never()).findById(any());
 
@@ -253,6 +256,8 @@ class EmployeeServiceTest {
 //        arrange
         EmployeeEntity dbEmployee = new EmployeeEntity();
         dbEmployee.setEmpno(idEmployee);
+        dbEmployee.setEname("Old name");
+        dbEmployee.setJob("Old job");
 
         DeptEntity dbDept = new DeptEntity();
         dbDept.setDeptno(idDept);
@@ -271,7 +276,7 @@ class EmployeeServiceTest {
 
         Mockito.when(employeeDAO.findById(idEmployee)).thenReturn(Optional.of(dbEmployee));
         Mockito.when(deptDAO.findById(idDept)).thenReturn(Optional.of(dbDept));
-        Mockito.when(employeeDAO.save(any())).thenReturn(dbEmployee);
+        Mockito.when(employeeDAO.save(dbEmployee)).thenReturn(dbEmployee);
         Mockito.when(employeeMapper.toDto(dbEmployee)).thenReturn(expectedDto);
 
 //        act
@@ -279,16 +284,89 @@ class EmployeeServiceTest {
 
 //        assert
         assertNotNull(resultDto);
-        assertEquals("Agus", resultDto.getName());
-        assertEquals("Dev", resultDto.getJob());
-        assertEquals(idEmployee, resultDto.getEmpno());
-        assertEquals(idDept, resultDto.getDeptNo());
+        assertEquals("Agus", dbEmployee.getEname());
+        assertEquals("Dev", dbEmployee.getJob());
+        assertEquals(idEmployee, dbEmployee.getEmpno());
+        assertEquals(idDept, dbEmployee.getDept().getDeptno());
 
 //        verify
         verify(employeeDAO, times(1)).findById(idEmployee);
         verify(deptDAO, times(1)).findById(idDept);
-        verify(employeeDAO, times(1)).save(any());
+        verify(employeeDAO, times(1)).save(dbEmployee);
         verify(employeeMapper, times(1)).toDto(dbEmployee);
+    }
+
+
+    @Test
+    @DisplayName("Throws ResourceNotFoundException when employee not found")
+    void updateEmployee_ShouldThrowException_WhenEmployeeNotFound(){
+        int nonValidId = 999;
+
+        EmployeesDTO employee = new EmployeesDTO();
+
+        Mockito.when(employeeDAO.findById(nonValidId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> employeeService.updateEmployee(nonValidId, employee));
+
+        verify(employeeDAO, times(1)).findById(nonValidId);
+        verify(deptDAO, never()).findById(any());
+        verify(employeeMapper, never()).toDto(any());
+        verify(employeeDAO, never()).save(any());
+
+    }
+
+
+
+    @Test
+    @DisplayName("Throws ResourceNotFoundException when Dept not found")
+    void updateEmployee_ShouldThrowException_WhenDeptNotFound(){
+        int nonValidId = 99;
+        int employeeId = 1;
+
+        EmployeeEntity dbEmployee = new EmployeeEntity();
+
+        EmployeesDTO updatedEmployee = new EmployeesDTO();
+        updatedEmployee.setDeptNo(nonValidId);
+
+        Mockito.when(employeeDAO.findById(employeeId)).thenReturn(Optional.of(dbEmployee));
+        Mockito.when(deptDAO.findById(nonValidId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> employeeService.updateEmployee(employeeId, updatedEmployee));
+
+        verify(employeeDAO, times(1)).findById(employeeId);
+        verify(deptDAO, times(1)).findById(nonValidId);
+        verify(employeeMapper, never()).toDto(any());
+        verify(employeeDAO, never()).save(any());
+
+    }
+
+    @Test
+    @DisplayName("Saves employee successfully when department is null")
+    void saveEmployee_ShouldWork_WhenDeptIsNull() {
+        int idEmpl = 1;
+
+        EmployeesDTO inputDto = new EmployeesDTO();
+        inputDto.setName("New Employee");
+        inputDto.setDeptNo(null);
+
+        EmployeeEntity employeeEntity = new EmployeeEntity();
+        EmployeesDTO outputDto = new EmployeesDTO();
+        outputDto.setEmpno(idEmpl);
+
+        Mockito.when(employeeMapper.toEntity(inputDto)).thenReturn(employeeEntity);
+        Mockito.when(employeeDAO.save(employeeEntity)).thenReturn(employeeEntity);
+        Mockito.when(employeeMapper.toDto(employeeEntity)).thenReturn(outputDto);
+
+        // Act
+        EmployeesDTO savedEmpl = employeeService.saveEmployee(inputDto);
+
+        // Assert
+        assertNotNull(savedEmpl);
+        assertEquals(idEmpl, savedEmpl.getEmpno());
+
+        // Verify
+        verify(deptDAO, never()).findById(any()); // Comprobamos que no se consulta la BD si deptNo es null
+        verify(employeeDAO, times(1)).save(employeeEntity);
     }
 
 }
