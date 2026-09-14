@@ -50,7 +50,7 @@ public class EmployeeController {
     // ------------------------------
     @Operation(summary = "Update employee", description = "Updates personal or professional data of an existing employee.")
     @PutMapping("/{id}")
-    public ResponseEntity<EmployeesDTO> updateEmployee(@RequestBody EmployeesDTO newEmpl,
+    public ResponseEntity<EmployeesDTO> updateEmployee(@Valid @RequestBody EmployeesDTO newEmpl,
                                             @PathVariable(value = "id") int id){
 
         return ResponseEntity.ok(emplService.updateEmployee(id, newEmpl));

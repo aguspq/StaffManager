@@ -62,7 +62,7 @@ class ProjectControllerTest {
     }
 
     @Test
-    @DisplayName("PATCH /api-rest/projects/{id} - Not Found")
+    @DisplayName("PATCH /api-rest/projects/{id} - Success (204 No Content)")
     void deleteProject_ShouldDelete() throws Exception{
         int projectId = 10;
 
@@ -94,8 +94,6 @@ class ProjectControllerTest {
     @DisplayName("PUT /api-rest/projects/{id} - Success")
     void updateProject_ShouldReturnUpdatedProject() throws Exception{
         int idProj = 1;
-        ProjectDTO oldProject = new ProjectDTO("Ex Proj", "Project desc");
-        oldProject.setId(idProj);
 
         ProjectDTO updatedProject = new ProjectDTO();
         updatedProject.setId(idProj);
@@ -115,5 +113,22 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$.description").value("New description"));
 
     }
+
+    @Test
+    @DisplayName("PUT /api-rest/projects/{id} - 404 Not Found")
+    void updateProject_ShouldReturn404_WhenProjectNotFound() throws Exception {
+        int nonValidId = 999;
+
+        ProjectDTO updatedProject = new ProjectDTO();
+
+        when(projectService.updateProject(any(ProjectDTO.class), eq(nonValidId))).thenThrow(new ResourceNotFoundException("Project not found"));
+
+        mockMvc.perform(put("/api-rest/projects/" + nonValidId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedProject)))
+                .andExpect(status().isNotFound());
+    }
+
+
 
 }

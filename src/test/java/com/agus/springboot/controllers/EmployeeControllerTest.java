@@ -5,7 +5,6 @@ import com.agus.springboot.exceptions.ResourceNotFoundException;
 import com.agus.springboot.service.EmployeeService;
 import com.agus.springboot.service.ProjectService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hibernate.annotations.NotFound;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +13,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-//import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.put;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 @WebMvcTest(EmployeeController.class)
 public class EmployeeControllerTest {
@@ -148,16 +147,28 @@ public class EmployeeControllerTest {
     void deleteEmployee_ShouldFail() throws Exception{
         int nonValidId = 999;
 
-        EmployeesDTO employeeToDelete = new EmployeesDTO();
-        employeeToDelete.setName("Agus");
-        employeeToDelete.setJob("DEV");
-        employeeToDelete.setDeptNo(10);
-
         doThrow(new ResourceNotFoundException("Employee not found"))
                 .when(employeeService).deleteUser(nonValidId);
 
         mockMvc.perform(patch("/api-rest/employees/" + nonValidId))
                 .andExpect(status().isNotFound());
     }
+
+
+    @Test
+    @DisplayName("PUT api-rest/employees/{id} - 400 Bad Request when payload is invalid")
+    void putUpdateEmployee_ShouldReturn400_WhenInvalidBody() throws Exception {
+        int idEmployee = 1;
+
+        EmployeesDTO inputDto = new EmployeesDTO();
+
+        mockMvc.perform(put("/api-rest/employees/" + idEmployee)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(inputDto)))
+                .andExpect(status().isBadRequest());
+
+    }
+
+
 
 }
