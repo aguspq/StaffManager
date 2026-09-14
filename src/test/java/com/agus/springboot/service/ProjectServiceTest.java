@@ -75,7 +75,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    @DisplayName("Throws ResourceNotFoundException when PROJECT not found ")
+    @DisplayName("assignProjectToEmployee - Throws ResourceNotFoundException when PROJECT not found ")
     void assignProjectToEmployee_ShouldThrowException_WhenProjNotFound(){
         int idProj = 99;
         int idEmpl = 999;
@@ -160,7 +160,7 @@ class ProjectServiceTest {
 
 
     @Test
-    @DisplayName("Throws ResourceNotFoundException when project not found")
+    @DisplayName("findProjectById - Throws ResourceNotFoundException when project not found")
     void findProjectById_ShouldThrowException_WhenProjectNotFound(){
         int nonValidId = 999;
 
@@ -267,7 +267,7 @@ class ProjectServiceTest {
 
 
     @Test
-    @DisplayName("Throws ResourceNotFoundException when project not found")
+    @DisplayName("updateProject - Throws ResourceNotFoundException when project not found")
     void updateProject_ShouldThrowException_WhenProjectNotFound(){
         int nonValidProjId = 99;
 
@@ -320,7 +320,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    @DisplayName("Throws ResourceNotFoundException when project not found")
+    @DisplayName("deleteProject - Throws ResourceNotFoundException when project not found")
     void deleteProject_ShouldThrowException_WhenProjectNotFound(){
         int nonValidId = 999;
 
@@ -399,4 +399,39 @@ class ProjectServiceTest {
 
     }
 
+
+    @Test
+    @DisplayName("Throws BusinessLogicException when employee is not active")
+    void assignProjectToEmployee_ShouldThrowBusinessLogicException_WhenEmployeeIsNotActive(){
+        int idProject = 10;
+        int idEmployee = 1;
+        ProjectEntity dbProject = new ProjectEntity();
+
+        EmployeeEntity dbEmployee = new EmployeeEntity();
+        dbEmployee.setActive(false);
+
+        Mockito.when(projectDAO.findById(idProject)).thenReturn(Optional.of(dbProject));
+        Mockito.when(employeeDAO.findById(idEmployee)).thenReturn(Optional.of(dbEmployee));
+
+        assertThrows(BusinessLogicException.class, () -> projectService.assignProjectToEmployee(idEmployee, idProject));
+
+        verify(projectDAO, times(1)).findById(idProject);
+        verify(employeeDAO, times(1)).findById(idEmployee);
+        verify(employeeDAO, never()).save(any());
+
+    }
+
+
+    @Test
+    @DisplayName("Throws IllegalArgumentException when ID is provided")
+    void saveProject_ShouldThrow_IllegalArgumentException_WhenIdIsProvided(){
+        ProjectDTO inputDto = new ProjectDTO();
+        inputDto.setId(10);
+
+        assertThrows(IllegalArgumentException.class, () -> projectService.saveProject(inputDto));
+
+        verify(projectMapper, never()).toEntity(any());
+        verify(projectMapper, never()).toDto(any());
+        verify(projectDAO, never()).save(any());
+    }
 }

@@ -46,6 +46,10 @@ public class ProjectService {
 
     public ProjectDTO saveProject(ProjectDTO projectDTO){
         // DTO --> entity + save() --> return DTO
+
+        if (projectDTO.getId() != null)
+            throw new IllegalArgumentException("Can not provide ID no create");
+
         ProjectEntity project = projectMapper.toEntity(projectDTO);
 
         project.setIsActive(true);
@@ -78,12 +82,15 @@ public class ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project with ID: " + idProject + " not found"));
         EmployeeEntity employee = employeeDAO.findById(idEmployee)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee with ID: " + idEmployee + " not found"));
+        if (!project.getIsActive())
+            throw new BusinessLogicException(idProject +" is not active");
+
+        if (!employee.getActive())
+            throw new BusinessLogicException("Employee must be active");
 
         if(employee.getProjects().size() >= MAX_PROJECTS)
             throw new BusinessLogicException("Employee has too many projects");
 
-        if (!project.getIsActive())
-            throw new BusinessLogicException(idProject +" is not active");
 
         employee.addProject(project);
 
