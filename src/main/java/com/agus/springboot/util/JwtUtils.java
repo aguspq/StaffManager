@@ -70,7 +70,7 @@ public class JwtUtils {
     }
 
     // Helper method to read the claims
-    private Claims getClaims(String token) {
+    public Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
