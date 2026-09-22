@@ -36,7 +36,7 @@ public class UserDetailServiceImpl implements UserDetailsService{
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity userEntity = userDAO.findByUserName(username)
+        UserEntity userEntity = userDAO.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
         List<SimpleGrantedAuthority> authorityList = userEntity.getRoles().stream()

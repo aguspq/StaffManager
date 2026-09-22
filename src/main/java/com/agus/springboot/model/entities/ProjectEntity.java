@@ -17,7 +17,7 @@ public class ProjectEntity {
     @Column(name = "description")
     private String description;
     @Column(name = "isactive")
-    private boolean isActive = true;
+    private Boolean isActive = true;
     @ManyToMany(mappedBy = "projects")
     private Set<EmployeeEntity> employees = new HashSet<>();
 

@@ -22,9 +22,11 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 public class SecurityConfig {
 
     private final JwtUtils jwtUtils;
+    private final JwtTokenValidator jwtTokenValidator;
 
-    public SecurityConfig(JwtUtils jwtUtils) {
+    public SecurityConfig(JwtUtils jwtUtils, JwtTokenValidator jwtTokenValidator) {
         this.jwtUtils = jwtUtils;
+        this.jwtTokenValidator = jwtTokenValidator;
     }
 
     @Bean
@@ -33,12 +35,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
-                    // Endpoint público para autenticación/registro
-                    http.requestMatchers("/auth/**").permitAll();
-                    // Cualquier otra petición requiere autenticación
+                    // Public endpoint for authentication/register
+                    http.requestMatchers("/auth/**", "/error").permitAll();
+                    // Public access to Swagger UI endpoints for API testing
+                    http.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll();
+                    // Any other request requires authentication
                     http.anyRequest().authenticated();
                 })
-                .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
+                .addFilterBefore(jwtTokenValidator, BasicAuthenticationFilter.class)
                 .build();
     }
 
