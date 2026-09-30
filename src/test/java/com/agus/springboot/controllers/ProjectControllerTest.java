@@ -3,11 +3,14 @@ package com.agus.springboot.controllers;
 import com.agus.springboot.dto.ProjectDTO;
 import com.agus.springboot.exceptions.ResourceNotFoundException;
 import com.agus.springboot.service.ProjectService;
+import com.agus.springboot.util.JwtTokenValidator;
+import com.agus.springboot.util.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -19,6 +22,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProjectController.class) // test without DB, security...
+@AutoConfigureMockMvc(addFilters = false)
+
 class ProjectControllerTest {
     @Autowired
     private MockMvc mockMvc; // fake client
@@ -28,6 +33,14 @@ class ProjectControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper; // translates object --> JSON
+
+
+    @MockitoBean
+    private JwtUtils jwtUtils;
+
+    @MockitoBean
+    private JwtTokenValidator jwtTokenValidator;
+
 
     @Test
     @DisplayName("GET /api-rest/projects/{id} - Success")
@@ -88,6 +101,17 @@ class ProjectControllerTest {
                 .andExpect(status().isCreated()) // 3. Expect el 201
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // 4. Server returns JSON
                 .andExpect(jsonPath("$.id").value(idProj)); // 5. Check has an ID
+    }
+
+    @Test
+    @DisplayName("POST /api-rest/projects - 400 Bad Request when payload is invalid")
+    void saveProject_ShouldReturn400_WhenInvalidBody() throws Exception {
+        ProjectDTO invalidProject = new ProjectDTO();
+
+        mockMvc.perform(post("/api-rest/projects")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidProject)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

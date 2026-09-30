@@ -4,14 +4,24 @@ import com.agus.springboot.dto.EmployeesDTO;
 import com.agus.springboot.exceptions.ResourceNotFoundException;
 import com.agus.springboot.service.EmployeeService;
 import com.agus.springboot.service.ProjectService;
+import com.agus.springboot.util.JwtTokenValidator;
+import com.agus.springboot.util.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -22,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(EmployeeController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class EmployeeControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -34,6 +45,67 @@ public class EmployeeControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockitoBean
+    private JwtUtils jwtUtils;
+
+    @MockitoBean
+    private JwtTokenValidator jwtTokenValidator;
+
+    @Test
+    @DisplayName("GET api-rest/employees -- Success")
+    void getAllEmployees_ShouldReturnPageEmployees () throws Exception {
+        EmployeesDTO employee = new EmployeesDTO();
+        employee.setEmpno(1);
+        employee.setName("Agus");
+
+        Page<EmployeesDTO> page = new PageImpl<>(List.of(employee));
+
+
+        when(employeeService.findAllEmployees(any(Pageable.class))).thenReturn(page);
+
+        mockMvc.perform(get("/api-rest/employees"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content[0].empno").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("Agus"));
+    }
+
+    @Test
+    @DisplayName("GET api-rest/employees/unassigned - Success (Paginación)")
+    void getUnassigned_ShouldReturnPagedUnassignedEmployees() throws Exception {
+        EmployeesDTO employee = new EmployeesDTO();
+        employee.setName("agus");
+        employee.setEmpno(1);
+
+        Page<EmployeesDTO> page = new PageImpl<>(List.of(employee));
+
+        when(employeeService.findUnassignedEmployeesDTO(any(Pageable.class))).thenReturn(page);
+
+        mockMvc.perform(get("/api-rest/employees/unassigned"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content[0].empno").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("agus"));
+    }
+
+    @Test
+    @DisplayName("PATCH api-rest/employees/{id}/dept/{deptNo} - Success")
+    void reassignDeptToEmpl_ShouldReturnUpdatedEmployee() throws Exception {
+        int emplId = 1;
+        int deptId = 10;
+
+        EmployeesDTO employee = new EmployeesDTO();
+        employee.setEmpno(emplId);
+        employee.setDeptNo(deptId);
+
+        when(employeeService.reassignDeptToEmployee(emplId, deptId)).thenReturn(employee);
+
+        mockMvc.perform(patch("/api-rest/employees/" + emplId + "/dept/" + deptId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.empno").value(emplId))
+                .andExpect(jsonPath("$.deptNo").value(deptId));
+    }
 
     @Test
     @DisplayName("GET api-rest/employees/{id} - Success")
