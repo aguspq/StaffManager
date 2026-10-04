@@ -9,13 +9,11 @@ import com.agus.springboot.util.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -142,12 +140,17 @@ public class EmployeeControllerTest {
     void postCreateEmployee_ShouldCreateEmployee() throws Exception{
         int idEmployee = 1;
         EmployeesDTO newEmployee = new EmployeesDTO();
-        newEmployee.setEmpno(idEmployee);
         newEmployee.setName("Agus");
         newEmployee.setJob("DEV");
         newEmployee.setDeptNo(10);
 
-        when(employeeService.saveEmployee(any(EmployeesDTO.class))).thenReturn(newEmployee);
+        EmployeesDTO savedEmployee = new EmployeesDTO();
+        savedEmployee.setEmpno(idEmployee);
+        savedEmployee.setName("Agus");
+        savedEmployee.setJob("DEV");
+        savedEmployee.setDeptNo(10);
+
+        when(employeeService.saveEmployee(any(EmployeesDTO.class))).thenReturn(savedEmployee);
 
         mockMvc.perform(post("/api-rest/employees")
                 .contentType(MediaType.APPLICATION_JSON) // 1. We tell then tha I send a JSON
@@ -209,8 +212,10 @@ public class EmployeeControllerTest {
 
         doNothing().when(employeeService).deleteUser(employeeId);
 
-        mockMvc.perform(patch("/api-rest/employees/" + employeeId))
+        mockMvc.perform(delete("/api-rest/employees/" + employeeId))
                 .andExpect(status().isNoContent());
+
+        verify(employeeService, times(1)).deleteUser(employeeId);
 
     }
 
@@ -222,8 +227,10 @@ public class EmployeeControllerTest {
         doThrow(new ResourceNotFoundException("Employee not found"))
                 .when(employeeService).deleteUser(nonValidId);
 
-        mockMvc.perform(patch("/api-rest/employees/" + nonValidId))
+        mockMvc.perform(delete("/api-rest/employees/" + nonValidId))
                 .andExpect(status().isNotFound());
+
+        verify(employeeService, times(1)).deleteUser(nonValidId);
     }
 
 
@@ -239,6 +246,7 @@ public class EmployeeControllerTest {
                 .content(objectMapper.writeValueAsString(inputDto)))
                 .andExpect(status().isBadRequest());
 
+        verify(employeeService, never()).updateEmployee(anyInt(), any());
     }
 
 

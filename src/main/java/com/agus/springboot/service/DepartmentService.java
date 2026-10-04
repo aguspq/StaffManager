@@ -7,7 +7,9 @@ import com.agus.springboot.model.dao.IDeptDAO;
 import com.agus.springboot.model.entities.DeptEntity;
 import com.agus.springboot.model.entities.EmployeeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +19,10 @@ public class DepartmentService {
     @Autowired
     private IDeptDAO deptDAO;
 
-    public List<DepartmentDTO> findAllDepartments(){
-        List<DeptEntity> deptEntityList = (List<DeptEntity>)deptDAO.findAll();
-        return deptEntityList.stream()
-                .filter(DeptEntity::getIsActive)
-                .map(this::convertEntityToDTO)
-                .toList();
-
+    public Page<DepartmentDTO> findAllDepartments(Pageable pageable) {
+        // Asumiendo que IDeptDAO extiende de JpaRepository o PagingAndSortingRepository
+        Page<DeptEntity> deptPage = deptDAO.findByIsActiveTrue(pageable);
+        return deptPage.map(this::convertEntityToDTO);
     }
 
     private DepartmentDTO convertEntityToDTO (DeptEntity dept){

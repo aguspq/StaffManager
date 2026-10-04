@@ -13,6 +13,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,24 +35,26 @@ public class DepartmentServiceTest {
 
 
     @Test
-    @DisplayName("SUCCESS - findAllDepartments - Returns only active departments mapped to DTOs")
-    void findAllDepartments_ShouldReturnOnlyActiveDepartments(){
+    @DisplayName("SUCCESS - findAllDepartments - Returns paged active departments mapped to DTOs")
+    void findAllDepartments_ShouldReturnPagedActiveDepartments() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
         DeptEntity activeDept = new DeptEntity(1, "IT", "Madrid", true);
-        DeptEntity inactiveDept = new DeptEntity(2, "HR", "Barcelona", false);
+        List<DeptEntity> entityList = List.of(activeDept);
+        Page<DeptEntity> entityPage = new PageImpl<>(entityList, pageable, entityList.size());
 
-        List<DeptEntity> deptEntityList = List.of(activeDept, inactiveDept);
+        Mockito.when(deptDAO.findByIsActiveTrue(pageable)).thenReturn(entityPage);
 
-        Mockito.when(deptDAO.findAll()).thenReturn(deptEntityList);
+        // Act
+        Page<DepartmentDTO> resultPage = departmentService.findAllDepartments(pageable);
 
-        List<DepartmentDTO> resultList = departmentService.findAllDepartments();
+        // Assert
+        assertNotNull(resultPage);
+        assertEquals(1, resultPage.getContent().size());
+        assertEquals("IT", resultPage.getContent().get(0).getName());
 
-        assertNotNull(resultList);
-        assertEquals(1, resultList.size(), "Should return only active departments");
-        assertEquals(activeDept.getDname(), resultList.get(0).getName());
-
-        verify(deptDAO, times(1)).findAll();
-
-
+        verify(deptDAO, times(1)).findByIsActiveTrue(pageable);
     }
 
     @Test

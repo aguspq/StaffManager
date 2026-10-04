@@ -65,14 +65,12 @@ public class EmployeeController {
     }
 
     @Operation(summary = "Soft delete employee", description = "Deactivates an employee account without removing the record from the database.")
-    @PatchMapping("/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable(value = "id") int id){
 
         emplService.deleteUser(id);
 
-        return ResponseEntity.noContent().build(); // 204 is a standard code to deleted successfully
-//                                                  same but without response. More "pro"
-
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Reassign department", description = "Moves an employee to a different department by updating the department ID.")

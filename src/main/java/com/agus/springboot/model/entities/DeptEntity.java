@@ -19,22 +19,21 @@ public class DeptEntity {
     private String loc;
     @Column(name = "isactive")
     private Boolean isActive = true;
-//    @OneToMany(mappedBy = "dept", cascade = CascadeType.ALL)
+    //    @OneToMany(mappedBy = "dept", cascade = CascadeType.ALL)
     @OneToMany(mappedBy = "dept", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<EmployeeEntity> employees = new HashSet<>(); // Inicialize ALLWAYS!!!
 
-    public DeptEntity(){
+    public DeptEntity() {
 
     }
 
-    public DeptEntity(Integer deptno, String dname, String loc, boolean isActive){
+    public DeptEntity(Integer deptno, String dname, String loc, boolean isActive) {
         this.deptno = deptno;
         this.dname = dname;
         this.loc = loc;
         this.isActive = isActive;
         this.employees = new HashSet<>();
     }
-
 
 
     public Integer getDeptno() {
@@ -60,11 +59,22 @@ public class DeptEntity {
     public void setLoc(String loc) {
         this.loc = loc;
     }
-    public Set<EmployeeEntity> getEmployees() { return employees; }
 
-    public void setEmployees (Set<EmployeeEntity> employees) { this.employees = employees; }
-    public Boolean getIsActive() { return isActive; }
-    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+    public Set<EmployeeEntity> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(Set<EmployeeEntity> employees) {
+        this.employees = employees;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
 
     @Override
     public boolean equals(Object o) {

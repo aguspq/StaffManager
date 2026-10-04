@@ -6,6 +6,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +24,11 @@ public class DepartmentController {
     @Autowired
     private DepartmentService deptService;
 
-    @Operation(summary = "List all departments", description = "Retrieves a complete list of all company departments.")
+    @Operation(summary = "List all departments", description = "Retrieves a paginated list of all company departments.")
     @GetMapping
-    public List<DepartmentDTO> findAllDepts(){return deptService.findAllDepartments();}
+    public ResponseEntity<Page<DepartmentDTO>> findAllDepts(@PageableDefault(size = 5) Pageable pageable) {
+        return ResponseEntity.ok(deptService.findAllDepartments(pageable));
+    }
 
     @Operation(summary = "Get department by ID", description = "Finds department details, including its location and name, by ID.")
     @GetMapping("/{id}")
