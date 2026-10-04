@@ -18,11 +18,9 @@ class MappersTest {
 
     @BeforeEach
     void setUp() {
-        // Obtenemos las implementaciones generadas por MapStruct
         projectMapper = Mappers.getMapper(ProjectMapper.class);
         employeeMapper = Mappers.getMapper(EmployeeMapper.class);
 
-        // Como EmployeeMapper usa ProjectMapper, inyectamos la dependencia manualmente
         ReflectionTestUtils.setField(employeeMapper, "projectMapper", projectMapper);
     }
 
