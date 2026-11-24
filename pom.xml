@@ -16,7 +16,7 @@
     <description>Robust REST API for Organizational Management</description>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <jjwt.version>0.12.6</jjwt.version>
     </properties>
@@ -95,6 +95,16 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Flyway Database Migrations -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

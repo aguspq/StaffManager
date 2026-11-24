@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "project", schema = "public", catalog = "employeeAPC2425")
+@Table(name = "project")
 public class ProjectEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -45,11 +45,11 @@ public class ProjectEntity {
         this.description = description;
     }
 
-    public void setIsActive(boolean active) {
+    public void setIsActive(Boolean active) {
         isActive = active;
     }
 
-    public boolean getIsActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
